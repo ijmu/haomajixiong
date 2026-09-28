@@ -20,7 +20,7 @@
 /js/*
   Cache-Control: public, max-age=300
 
-/css/*
+/style.css
   Cache-Control: public, max-age=300
 
 /og.png
