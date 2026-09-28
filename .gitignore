@@ -1,0 +1,3 @@
+web/js/*.bak
+*.log
+__pycache__/
