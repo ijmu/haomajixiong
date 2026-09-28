@@ -1,8 +1,9 @@
 /* app.js · 界面层（DOM + SVG，零 canvas） */
-import { analyze, validate } from './engine.js?v=20260929k';
+import { analyze, validate } from './engine.js?v=20260929m';
 import { CIGROUP, CIZERO, FIVE, NUM, TAIL, WUXING_ORDER, WUXING_TEXT, LEVEL_W, numLevel, carrierOf }
-  from './data.js?v=20260929k';
-import { initShare } from './share.js?v=20260929k';
+  from './data.js?v=20260929m';
+import { initShare } from './share.js?v=20260929m';
+import { initCompare } from './compare.js?v=20260929m';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c =>
@@ -71,6 +72,22 @@ function fmtInput(d) {
   return d.slice(0, 3) + ' ' + d.slice(3, 7) + ' ' + d.slice(7);
 }
 slots.addEventListener('click', () => phone.focus());
+
+/* 轻量提示：对比条操作需要即时反馈 */
+let _toastT = null;
+function toast(msg) {
+  let el = $('#toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toast';
+    el.setAttribute('role', 'status');
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add('on');
+  clearTimeout(_toastT);
+  _toastT = setTimeout(() => el.classList.remove('on'), 1900);
+}
 
 function showErr(m) { errBox.textContent = m; errBox.classList.add('on'); }
 function hideErr() { errBox.classList.remove('on'); errBox.textContent = ''; }
@@ -176,6 +193,7 @@ function render(r) {
     <div class="acts">
       <button class="btn-sub" id="copy">复制结果</button>
       <button class="btn-sub" id="share">分享</button>
+      <button class="btn-sub" id="cmpadd">加入对比</button>
       <button class="btn-sub" id="again">再测一个</button>
     </div>
     <p class="tip" id="copy-tip"></p>
@@ -424,6 +442,9 @@ function bindActs() {
   const s = $('#share');
   if (s) s.addEventListener('click', () => { shareCard(); });
 
+  const cAdd = $('#cmpadd');
+  if (cAdd) cAdd.addEventListener('click', () => { if (LAST) compare.add(LAST); });
+
   const a = $('#again');
   if (a) a.addEventListener('click', () => {
     CUR = ''; phone.value = ''; paint(); hideErr();
@@ -473,6 +494,7 @@ function renderHist(list) {
         <span class="hg ${h.g === 'S' || h.g === 'A' ? 'good' : (h.g === 'E' || h.g === 'D' ? 'bad' : '')}">${esc(h.g)} · ${esc(h.l)}</span>
       </div>
     </div>`).join('');
+  compare.syncHistoryChips();
   box.querySelectorAll('.hrow').forEach(el => {
     el.addEventListener('click', () => {
       const n = el.getAttribute('data-num') || '';
@@ -484,6 +506,12 @@ function renderHist(list) {
 }
 
 /* ---------- 启动 ---------- */
+const compare = initCompare({
+  $: s => document.querySelector(s),
+  esc,
+  analyze,
+  toast
+});
 const shareCard = initShare({
   getLast: () => LAST,
   $: s => document.querySelector(s),

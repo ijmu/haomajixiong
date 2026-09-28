@@ -1,6 +1,6 @@
 /* engine.js · 测算内核（纯函数，零 DOM，可单测 / 可在 Worker 里跑） */
 import { SHULI, CIGROUP, CIPAIR, CIZERO, FIVE, CARRIER, TAIL, NUM,
-         fmtNum, numLevel, LEVEL_W, carrierOf } from './data.js?v=20260929k';
+         fmtNum, numLevel, LEVEL_W, carrierOf } from './data.js?v=20260929m';
 
 /* ---------- 工具 ---------- */
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
