@@ -1,7 +1,7 @@
 /* app.js · 界面层（DOM + SVG，零 canvas） */
-import { analyze, validate } from './engine.js?v=20260929h';
+import { analyze, validate } from './engine.js?v=20260929i';
 import { CIGROUP, CIZERO, FIVE, NUM, TAIL, WUXING_ORDER, WUXING_TEXT, LEVEL_W, numLevel, carrierOf }
-  from './data.js?v=20260929h';
+  from './data.js?v=20260929i';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c =>
@@ -32,10 +32,13 @@ const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 const slots = $('#slots'), phone = $('#phone'), errBox = $('#err');
 const counter = $('#counter'), carrierChip = $('#carrier-chip'), goBtn = $('#go');
 let CUR = '';
+let BUSY = false;          // 起盘动画期间锁住输入，防止重入
 
 for (let i = 0; i < 11; i++) {
   const d = document.createElement('div');
-  d.className = 'slot' + (i === 3 || i === 7 ? ' gap' : '');
+  // 大陆手机号读法为 3-4-4（号段 3 位 + HLR 4 位 + 用户号 4 位），
+  // 分隔符必须落在第 3、7 个格子之后，才能和输入框/历史/结果里的 "138 0013 8000" 对齐
+  d.className = 'slot' + (i === 2 || i === 6 ? ' gap' : '');
   slots.appendChild(d);
 }
 const slotEls = [...slots.children];
@@ -90,20 +93,31 @@ const STEPS = ['排数理 · 后四位取灵数…', '布磁场 · 八星两两�
   '定五行 · 河图纳甲分布…', '察号型 · 豹子顺子对子…', '合四轴 · 加权出盘…'];
 
 function runCast(num) {
+  if (BUSY) return;                     // 防重入：动画期间再点不会叠加 setInterval
+  BUSY = true;
   goBtn.disabled = true; goBtn.classList.add('loading');
+  const rb = $('#random'), cl = $('#clear');
+  if (rb) rb.disabled = true;
+  if (cl) cl.disabled = true;
   resultBox.innerHTML = ''; resultBox.hidden = true;
   cast.hidden = false;
   cast.scrollIntoView({ behavior: 'smooth', block: 'center' });
   let i = 0;
   castStep.textContent = STEPS[0];
   /* 用同步 setInterval + 固定步数，不依赖 rAF（WebView 下 rAF 可能停摆） */
+  const done = () => {
+    BUSY = false;
+    goBtn.disabled = false; goBtn.classList.remove('loading');
+    if (rb) rb.disabled = false;
+    if (cl) cl.disabled = false;
+  };
   const timer = setInterval(() => {
     i++;
     if (i < STEPS.length) { castStep.textContent = STEPS[i]; return; }
     clearInterval(timer);
     cast.hidden = true;
-    goBtn.disabled = false; goBtn.classList.remove('loading');
     render(analyze(num));
+    done();
   }, 260);
 }
 
@@ -467,7 +481,7 @@ function renderHist(list) {
   box.innerHTML = list.map(h => `
     <div class="hrow" data-num="${esc(h.num)}">
       <div class="hi">
-        <b>${esc(h.num.slice(0, 3))} ${esc(h.num.slice(3, 7))} ${esc(h.num.slice(7))}</b>
+        <b>${esc(h.num.slice(0, 3))} **** ${esc(h.num.slice(7))}</b>
         <i>${esc(dstr(h.ts))}</i>
       </div>
       <div class="hr">
