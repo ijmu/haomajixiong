@@ -3,7 +3,7 @@
   Referrer-Policy: no-referrer
   X-Frame-Options: SAMEORIGIN
   Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=()
-  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-pQOSKe/aVNiPw/awq7LUT6yW8LbKZbCVFL26JTg+Ajk='; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'
+  Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-pQOSKe/aVNiPw/awq7LUT6yW8LbKZbCVFL26JTg+Ajk='; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'
 
 # 注意：Pages 对同时匹配的规则是「拼接」而非「覆盖」，
 # 所以 Cache-Control 只能在一条规则里出现，否则会拼出 max-age=0 与 max-age=86400 冲突值。
@@ -24,6 +24,9 @@
   Cache-Control: public, max-age=300
 
 /og.png
+  Cache-Control: public, max-age=86400
+
+/sitemap.xml
   Cache-Control: public, max-age=86400
 
 /apple-touch-icon.png

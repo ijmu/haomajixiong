@@ -1,6 +1,6 @@
 /* engine.js · 测算内核（纯函数，零 DOM，可单测 / 可在 Worker 里跑） */
 import { SHULI, CIGROUP, CIPAIR, CIZERO, FIVE, CARRIER, TAIL, NUM,
-         fmtNum, numLevel, LEVEL_W, carrierOf } from './data.js?v=20260929i';
+         fmtNum, numLevel, LEVEL_W, carrierOf } from './data.js?v=20260929k';
 
 /* ---------- 工具 ---------- */
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
@@ -29,6 +29,17 @@ export function shuLi(num) {
 /* 去号段（前 3 位为「先天号段」，只作展示），后 8 位两两分组 = 4 组磁场。
    权重：越靠后影响越大（1 / 1.2 / 1.5 / 2）——尾号定盘的通行说法。 */
 const PAIR_W = [1, 1.2, 1.5, 2];
+
+/* 五维原始分的离线标定值（mu=均值, sd=标准差），由 scripts/calibrate.mjs 实测填入。
+   作用：把各维原始分映射到统一标尺，使五个维度跨维可比。
+   改任何维度系数后必须重跑标定，否则雷达形状会失真。 */
+const RAW = {
+  cai:  { mu: 56.23, sd: 7.59 },
+  shi:  { mu: 60.39, sd: 6.73 },
+  qing: { mu: 58.89, sd: 6.63 },
+  jian: { mu: 60.35, sd: 7.32 },
+  ren:  { mu: 61.95, sd: 6.88 }
+};
 
 export function magnet(num) {
   const body = num.slice(3);            // 8 位
@@ -215,23 +226,57 @@ export function profile(num, sl, mg, fe, pt) {
   let ren = 58 + cnt('shengqi') * 32 - cnt('huohai') * 20 + cnt('liusha') * 8
             + cnt('yinian') * 6 + (fe.cnt['水'] - 2.2) * 2.5;
 
-  /* 数理灵数整体牵引（把 81 数理的吉凶分薄进五维） */
-  const pull = (sl.w - 0.5) * 22;
-  const shapePull = (pt.score - 62) * 0.22;
+  /* 数理灵数与号型的整体牵引。
+     关键：这两项对五个维度是等量叠加，只会平移五边形、不产生形状差异。
+     早期版本系数过大（pull 最大 ±11、shapePull ±8），公共分量压过差异分量，
+     导致 50% 的号码雷达"极差 < 15"、五边形几乎一样。
+     现降到 0.22 倍，只作轻微底色；数理的分量主要由「总分」那条轴承担（权重 26%）。 */
+  const pull = (sl.w - 0.5) * 22 * 0.22;
+  const shapePull = (pt.score - 62) * 0.22 * 0.22;
 
-  const dims = [
-    { k: 'cai',   n: '财运', v: clamp(cai + pull + shapePull, 5, 99),
-      d: dimText('cai', cai + pull, G, fe) },
-    { k: 'shi',   n: '事业', v: clamp(shi + pull + shapePull, 5, 99),
-      d: dimText('shi', shi + pull, G, fe) },
-    { k: 'qing',  n: '感情', v: clamp(qing + pull + shapePull, 5, 99),
-      d: dimText('qing', qing + pull, G, fe) },
-    { k: 'jian',  n: '健康', v: clamp(jian + pull + shapePull, 5, 99),
-      d: dimText('jian', jian + pull, G, fe) },
-    { k: 'ren',   n: '人际', v: clamp(ren + pull + shapePull, 5, 99),
-      d: dimText('ren', ren + pull, G, fe) },
+  /* 各维原始分 → 目标分布。
+     RAW_MU / RAW_SD 为离线实测的原始分均值与标准差（见 calibrate 脚本），
+     映射到 目标均值 62、目标标准差 13.5 —— 
+     这样五个维度共享同一标尺：p10≈45 / p50≈62 / p90≈80，跨维可比、雷达有形。 */
+  const fit = (v, mu, sd) => clamp(62 + (v - mu) * (13.5 / sd), 5, 97);
+
+  const raw = [
+    { k: 'cai',  n: '财运', v: cai + pull + shapePull },
+    { k: 'shi',  n: '事业', v: shi + pull + shapePull },
+    { k: 'qing', n: '感情', v: qing + pull + shapePull },
+    { k: 'jian', n: '健康', v: jian + pull + shapePull },
+    { k: 'ren',  n: '人际', v: ren + pull + shapePull },
   ];
-  return dims;
+  return raw.map(o => {
+    const v = fit(o.v, RAW[o.k].mu, RAW[o.k].sd);
+    return { k: o.k, n: o.n, v, d: dimText(o.k, v, G, fe) };
+  });
+}
+
+/* 离线标定用：返回五维「原始分」（未经 fit 映射），供 calibrate 脚本统计 mu/sd。
+   生产路径不依赖它，保留是为了下次改系数时能一键重标。 */
+export function rawDims(num) {
+  const v = validate(num);
+  if (!v.ok) return null;
+  const sl = shuLi(v.num), mg = magnet(v.num), fe = fiveElement(v.num), pt = pattern(v.num);
+  const G = mg.groups.map(g => g.info.g);
+  const W = mg.groups.map(g => g.weight * (g.eff / (g.info.w || 1)));
+  const WSUM = PAIR_W.reduce((a, b) => a + b, 0);
+  const cnt = k => G.reduce((s, g, i) => s + (g === k ? W[i] : 0), 0) / WSUM;
+  const pull = (sl.w - 0.5) * 22 * 0.22;
+  const shapePull = (pt.score - 62) * 0.22 * 0.22;
+  return {
+    cai: 58 + cnt('tiany') * 30 - cnt('jueming') * 16 + cnt('shengqi') * 9
+         - cnt('huohai') * 13 - cnt('zero') * 8 + (fe.cnt['金'] - 2.2) * 3 + pull + shapePull,
+    shi: 58 + cnt('yinian') * 32 + cnt('wugui') * 9 - cnt('liusha') * 11
+         + cnt('fuwei') * 4 - cnt('jueming') * 9 + (fe.cnt['木'] - 2.2) * 2.5 + pull + shapePull,
+    qing: 60 - cnt('liusha') * 28 + cnt('tiany') * 20 - cnt('fuwei') * 9
+          + cnt('shengqi') * 11 - cnt('wugui') * 8 + (fe.cnt['火'] - 2.2) * 2.5 + pull + shapePull,
+    jian: 62 - cnt('huohai') * 28 - cnt('jueming') * 17 + cnt('tiany') * 22
+          + cnt('shengqi') * 8 - cnt('wugui') * 8 + (fe.cnt['土'] - 2.2) * 2.5 + pull + shapePull,
+    ren: 58 + cnt('shengqi') * 32 - cnt('huohai') * 20 + cnt('liusha') * 8
+         + cnt('yinian') * 6 + (fe.cnt['水'] - 2.2) * 2.5 + pull + shapePull,
+  };
 }
 
 function dimText(k, v, G, fe) {

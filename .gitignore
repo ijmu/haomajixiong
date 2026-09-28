@@ -4,3 +4,5 @@ __pycache__/
 
 # 构建/部署产物不入库
 web/.wrangler/
+web/_csptest.html
+scripts/__pycache__/

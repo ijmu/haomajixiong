@@ -1,7 +1,8 @@
 /* app.js · 界面层（DOM + SVG，零 canvas） */
-import { analyze, validate } from './engine.js?v=20260929i';
+import { analyze, validate } from './engine.js?v=20260929k';
 import { CIGROUP, CIZERO, FIVE, NUM, TAIL, WUXING_ORDER, WUXING_TEXT, LEVEL_W, numLevel, carrierOf }
-  from './data.js?v=20260929i';
+  from './data.js?v=20260929k';
+import { initShare } from './share.js?v=20260929k';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c =>
@@ -250,10 +251,13 @@ function render(r) {
   </section>`;
 
   resultBox.hidden = false;
+  resultBox.setAttribute('tabindex', '-1');
+  resultBox.setAttribute('aria-label', '测算结果');
   bindActs();
   saveHist(r);
-  $('#card-history').scrollIntoView; /* 不自动滚动，避免打断阅读 */
   resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  /* 把焦点移到结果区：键盘/读屏用户不必从页首重新 tab 一遍 */
+  try { resultBox.focus({ preventScroll: true }); } catch (e) { }
 }
 
 function ring(v, tone) {
@@ -418,27 +422,7 @@ function bindActs() {
   });
 
   const s = $('#share');
-  if (s) {
-    if (navigator.share) {
-      s.addEventListener('click', async () => {
-        if (!LAST) return;
-        try {
-          await navigator.share({
-            title: `我的手机号 ${LAST.grade.qian}｜${Math.round(LAST.total)} 分`,
-            text: plainText(LAST).slice(0, 400),
-            url: location.href
-          });
-          say('✓ 已唤起系统分享');
-        } catch (e) { if (e && e.name !== 'AbortError') say('分享被取消或失败'); }
-      });
-    } else {
-      s.addEventListener('click', async () => {
-        if (!LAST) return;
-        say(await copyText(location.href + '\n\n' + plainText(LAST))
-          ? '✓ 当前浏览器不支持系统分享，已改为复制链接与结果' : '分享不可用');
-      });
-    }
-  }
+  if (s) s.addEventListener('click', () => { shareCard(); });
 
   const a = $('#again');
   if (a) a.addEventListener('click', () => {
@@ -500,6 +484,13 @@ function renderHist(list) {
 }
 
 /* ---------- 启动 ---------- */
+const shareCard = initShare({
+  getLast: () => LAST,
+  $: s => document.querySelector(s),
+  clamp,
+  copyText,
+  plainText
+});
 paint();
 renderHist(readHist());
 const histClear = $('#hist-clear');
