@@ -1,3 +1,6 @@
 web/js/*.bak
 *.log
 __pycache__/
+
+# 构建/部署产物不入库
+web/.wrangler/

@@ -1,0 +1,13 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  X-Frame-Options: SAMEORIGIN
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=()
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-pQOSKe/aVNiPw/awq7LUT6yW8LbKZbCVFL26JTg+Ajk='; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'
+  Cache-Control: public, max-age=0, must-revalidate
+
+/js/*
+  Cache-Control: public, max-age=300
+
+/css/*
+  Cache-Control: public, max-age=300
