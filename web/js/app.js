@@ -1,9 +1,9 @@
 /* app.js · 界面层（DOM + SVG，零 canvas） */
-import { analyze, validate, normalizeInput } from './engine.js?v=20260929n';
+import { analyze, validate, normalizeInput } from './engine.js?v=20260929o';
 import { CIGROUP, CIZERO, FIVE, NUM, TAIL, WUXING_ORDER, WUXING_TEXT, LEVEL_W, numLevel, carrierOf }
-  from './data.js?v=20260929n';
-import { initShare } from './share.js?v=20260929n';
-import { initCompare } from './compare.js?v=20260929n';
+  from './data.js?v=20260929o';
+import { initShare } from './share.js?v=20260929o';
+import { initCompare } from './compare.js?v=20260929o';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c =>
