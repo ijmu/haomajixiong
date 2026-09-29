@@ -1,9 +1,9 @@
 /* app.js · 界面层（DOM + SVG，零 canvas） */
-import { analyze, validate } from './engine.js?v=20260929m';
+import { analyze, validate, normalizeInput } from './engine.js?v=20260929n';
 import { CIGROUP, CIZERO, FIVE, NUM, TAIL, WUXING_ORDER, WUXING_TEXT, LEVEL_W, numLevel, carrierOf }
-  from './data.js?v=20260929m';
-import { initShare } from './share.js?v=20260929m';
-import { initCompare } from './compare.js?v=20260929m';
+  from './data.js?v=20260929n';
+import { initShare } from './share.js?v=20260929n';
+import { initCompare } from './compare.js?v=20260929n';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c =>
@@ -62,7 +62,9 @@ function validateCarrier(p) {
 }
 
 phone.addEventListener('input', () => {
-  const d = phone.value.replace(/\D/g, '').slice(0, 11);
+  /* 走 engine 的 normalizeInput：先剥国际区号（+86/0086/86）再截 11 位，
+     否则粘贴带区号的号码会被截成错的号码 */
+  const d = normalizeInput(phone.value);
   CUR = d; phone.value = fmtInput(d); paint(); hideErr();
 });
 phone.addEventListener('focus', () => { if (!CUR) phone.placeholder = ''; });

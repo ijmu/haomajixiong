@@ -1,15 +1,35 @@
 /* engine.js · 测算内核（纯函数，零 DOM，可单测 / 可在 Worker 里跑） */
 import { SHULI, CIGROUP, CIPAIR, CIZERO, FIVE, CARRIER, TAIL, NUM,
-         fmtNum, numLevel, LEVEL_W, carrierOf } from './data.js?v=20260929m';
+         fmtNum, numLevel, LEVEL_W, carrierOf } from './data.js?v=20260929n';
 
 /* ---------- 工具 ---------- */
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
+/* 剥国际区号（+86 / 0086 / 86）。
+   这是「剥区号」的唯一实现：输入框与校验都必须先做这步再谈长度，
+   否则粘贴 "+8613800138000" 会被截成 "86138001380"（错的号码），校验层救不回来。 */
+function stripCC(digits) {
+  if (digits.length > 11) {
+    if (digits.startsWith('0086')) return digits.slice(4);
+    if (digits.startsWith('86')) return digits.slice(2);
+  }
+  return digits;
+}
+
+/* 输入框用：剥区号后硬截 11 位（输入框本就是 11 位硬上限） */
+export function normalizeInput(raw) {
+  return stripCC(String(raw || '').replace(/\D/g, '')).slice(0, 11);
+}
+
+/* 校验用：剥区号后不静默截断 —— 超长仍应报错，
+   避免把「两串号码粘在一起」这类输入悄悄算错号 */
 export function validate(raw) {
-  const digits = String(raw || '').replace(/\D/g, '');
+  const digits = stripCC(String(raw || '').replace(/\D/g, ''));
   if (digits.length === 0) return { ok: false, err: '请输入手机号码' };
   if (digits.length < 11) return { ok: false, err: `还差 ${11 - digits.length} 位（已输入 ${digits.length} 位）` };
-  if (digits.length > 11) return { ok: false, err: '手机号为 11 位，多出的数字已忽略' };
+  if (digits.length > 11) {
+    return { ok: false, err: `手机号为 11 位，当前 ${digits.length} 位；若含国际区号可直接粘贴（+86 会自动识别）` };
+  }
   if (digits[0] !== '1') return { ok: false, err: '大陆手机号以 1 开头' };
   if (digits[1] === '0' || digits[1] === '1' || digits[1] === '2') {
     return { ok: false, err: `1${digits[1]}x 不是有效号段` };
@@ -190,7 +210,7 @@ export function pattern(num) {
   const last2 = num.slice(-2);
   if (CIPAIR[last2] && CIPAIR[last2].g !== 'zero') {
     const gi = CIPAIR[last2].g, g = CIGROUP[gi];
-    feats.push({ k: g.lucky > 0 ? 'good' : 'bad', t: `收尾磁场 · ${g.n}${last2.split('').reverse().join('') === last2 ? '' : ''}`,
+    feats.push({ k: g.lucky > 0 ? 'good' : 'bad', t: `收尾磁场 · ${g.n}`,
                  d: `号码最后两位「${last2}」为${g.n}磁场（${g.t.join('/')}），全盘能量的落点：${g.d}` });
   }
 

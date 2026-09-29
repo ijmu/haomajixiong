@@ -79,4 +79,6 @@ console.log('  ' + T.verdict.sub);
 console.log('  各号总分: ' + snaps.map(s => `${s.g}${s.total.toFixed(1)}`).join(' | '));
 
 console.log(`\n===== 通过 ${pass} / 失败 ${fail} =====`);
-process.exit(fail ? 1 : 0);
+/* 不能用 process.exit()：stdout 被管道/重定向时它会截断尚未刷出的缓冲，
+   表现为「退出码 0 但看不到汇总行」。置 exitCode 让 node 自然退出即可。 */
+process.exitCode = fail ? 1 : 0;

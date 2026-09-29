@@ -103,7 +103,7 @@ if (process.argv.includes('--write')) {
   const re = /const RAW = \{[\s\S]*?\n\};/;
   if (!re.test(src)) {
     console.error('\n!! 未找到 RAW 常量块，未写入');
-    process.exit(1);
+    process.exitCode = 1;
   }
   writeFileSync(ENGINE, src.replace(re, block));
   console.log('\n已写回 engine.js：\n' + block);

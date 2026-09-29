@@ -67,8 +67,10 @@ export function buildTable(list) {
   for (const row of ROWS) {
     if (row.t === 'sep') { rows.push({ sep: row.t2 }); continue; }
 
-    const vals = list.map(x => row.v ? row.v(x)
-      : (typeof row.f(x) === 'number' ? row.f(x) : null));
+    /* 逐格包一层：任一快照字段缺失只让该格显示占位，不让整表崩掉 */
+    const cellSafe = (x, fn) => { try { return fn(x); } catch (e) { return null; } };
+    const vals = list.map(x => cellSafe(x, () => row.v ? row.v(x)
+      : (typeof row.f(x) === 'number' ? row.f(x) : null)));
 
     let best = null, worst = null;
     if (row.hi || row.lo) {
@@ -86,7 +88,7 @@ export function buildTable(list) {
            而该类行的 vals[i] 也是 null，直接判等会把整行亮成「最优」 */
         const cls = (best !== null && vals[i] === best) ? 'best'
           : (worst !== null && vals[i] === worst) ? 'worst' : '';
-        return { text: String(row.f(x)), cls };
+        return { text: String(cellSafe(x, row.f) ?? '—'), cls };
       })
     });
   }
@@ -94,7 +96,8 @@ export function buildTable(list) {
   /* 结论：综合分最高者 */
   const top = [...list].sort((a, b) => b.total - a.total);
   const gap = top.length > 1 ? (top[0].total - top[1].total) : 0;
-  const dimBest = [0, 1, 2, 3, 4].map(i => [...list].sort((a, b) => b.dims[i] - a.dims[i])[0]);
+  const dimAt = (x, i) => (Array.isArray(x.dims) && Number.isFinite(x.dims[i]) ? x.dims[i] : -1);
+  const dimBest = [0, 1, 2, 3, 4].map(i => [...list].sort((a, b) => dimAt(b, i) - dimAt(a, i))[0]);
   const names = ['财运', '事业', '感情', '健康', '人际'];
 
   const summary = gap >= 5
@@ -117,14 +120,34 @@ export function buildTable(list) {
   };
 }
 
+/* ---------- 快照有效性 ----------
+   快照必须字段齐备才可用。
+   必要性：版本迭代会改变快照字段，用户 localStorage 里可能残留旧版数据；
+   残缺快照一旦进入 buildTable，会让对比表直接抛异常、点了按钮毫无反应（实测过）。 */
+const numArr = (v, n) => Array.isArray(v) && v.length === n && v.every(x => Number.isFinite(x));
+
+export const isSnapshot = x => !!x && typeof x === 'object'
+  && typeof x.num === 'string' && /^1\d{10}$/.test(x.num)
+  && Number.isFinite(x.total)
+  && typeof x.g === 'string' && typeof x.luck === 'string'
+  && [x.mg, x.sl, x.pt, x.wx, x.slIdx, x.feats].every(Number.isFinite)
+  && numArr(x.dims, 5)
+  && typeof x.slName === 'string' && typeof x.tail === 'string'
+  && typeof x.tailGi === 'string' && typeof x.dominant === 'string'
+  && Array.isArray(x.missing);
+
+/* 读入任意来源（可能畸形）的对比列表 → 干净的快照数组。纯函数，可单测。 */
+export function sanitizeList(arr) {
+  return Array.isArray(arr) ? arr.filter(isSnapshot).slice(0, MAX) : [];
+}
+
 export function initCompare({ $, esc, analyze, toast }) {
   let list = read();
 
   function read() {
     try {
-      const arr = JSON.parse(localStorage.getItem(CKEY) || '[]');
-      return Array.isArray(arr) ? arr.filter(x => x && typeof x.num === 'string').slice(0, MAX) : [];
-    } catch (e) { return []; }
+      return sanitizeList(JSON.parse(localStorage.getItem(CKEY) || '[]'));
+    } catch (e) { return []; }   /* 畸形 JSON（用户手改 / 旧版本 / 存储损坏）一律当空 */
   }
   function write() {
     try { localStorage.setItem(CKEY, JSON.stringify(list)); } catch (e) { /* 隐私模式静默 */ }
