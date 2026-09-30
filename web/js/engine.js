@@ -1,6 +1,6 @@
 /* engine.js · 测算内核（纯函数，零 DOM，可单测 / 可在 Worker 里跑） */
 import { SHULI, CIGROUP, CIPAIR, CIZERO, FIVE, CARRIER, TAIL, NUM,
-         fmtNum, numLevel, LEVEL_W, carrierOf } from './data.js?v=20260929o';
+         fmtNum, numLevel, LEVEL_W, carrierOf } from './data.js?v=20260929s';
 
 /* ---------- 工具 ---------- */
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
@@ -36,6 +36,10 @@ export function validate(raw) {
   }
   return { ok: true, num: digits };
 }
+
+/* 全站统一的号码读法：3-4-4（号段 3 位 + HLR 4 位 + 用户号 4 位）。
+   唯一实现：结果卡 / 历史 / 对比条 / 分享图都必须用它，禁止再造缩写格式。 */
+export const fmtFull = n => `${n.slice(0, 3)} ${n.slice(3, 7)} ${n.slice(7)}`;
 
 /* ---------- ① 81 数理灵数 ---------- */
 export function shuLi(num) {

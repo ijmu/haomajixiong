@@ -6,6 +6,8 @@
    initCompare() 只负责把它们接到界面上。
    依赖注入（避免跨模块共享作用域）：$ / esc / analyze / toast
 */
+import { fmtFull } from './engine.js?v=20260929s';
+
 const CKEY = 'hl_cmp';
 const MAX = 4;
 
@@ -13,8 +15,8 @@ const MAX = 4;
    尾号磁场／最旺五行／尾号数字属分类值，无高低之分，故不给 v、不参与高亮。 */
 export const GRADE_RANK = { S: 6, A: 5, B: 4, C: 3, D: 2, E: 1 };
 
-/* 全站统一 3-4-4 读法 */
-export const fmtFull = n => `${n.slice(0, 3)} ${n.slice(3, 7)} ${n.slice(7)}`;
+/* 全站统一 3-4-4 读法（唯一实现在 engine.js，此处转发以维持既有导入路径） */
+export { fmtFull };
 
 export const ROWS = [
   { t: '综合评分', f: x => Math.round(x.total), hi: true, big: true },
@@ -141,7 +143,8 @@ export function sanitizeList(arr) {
   return Array.isArray(arr) ? arr.filter(isSnapshot).slice(0, MAX) : [];
 }
 
-export function initCompare({ $, esc, analyze, toast }) {
+/* shareCompare(list, verdict)：由 app 注入（对比成图在 share.js，避免模块反向依赖） */
+export function initCompare({ $, esc, analyze, toast, shareCompare }) {
   let list = read();
 
   function read() {
@@ -257,11 +260,16 @@ export function initCompare({ $, esc, analyze, toast }) {
         <div class="modal-inner cmp-inner">
           <h3 class="cmp-title">号码对比</h3>
           <div id="cmp-body"></div>
+          <button class="btn-sub" id="cmp-share">分享对比图</button>
           <button class="btn-sub" id="cmp-close">关闭</button>
         </div>`;
       document.body.appendChild(m);
       m.querySelector('.modal-bg').addEventListener('click', close);
       m.querySelector('#cmp-close').addEventListener('click', close);
+      m.querySelector('#cmp-share').addEventListener('click', () => {
+        if (!shareCompare) { toast('对比图功能未就绪'); return; }
+        shareCompare(list, buildTable(list).verdict);
+      });
     }
     renderModal();
     m.classList.add('on');

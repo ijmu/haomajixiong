@@ -1,3 +1,5 @@
+import { fmtFull } from './engine.js?v=20260929s';
+
 /* ---------- 分享成图 ---------- */
 /* 用 canvas 直接绘制（而不是把页面 SVG 光栅化）：SVG → Image → canvas 在部分 WebView
    上会因 foreignObject / 外部字体而静默失败，直接绘制路径最可靠。 */
@@ -159,17 +161,11 @@ function drawShareCard(r, clamp) {
   });
 
   g.textAlign = 'center';
-  g.font = CF(400, 10.5); g.fillStyle = '#6f6779';
-  g.fillText('传统民俗数理 · 文化娱乐参考 · 不构成任何决策建议', cx, 882);
+  g.font = CF(600, 13); g.fillStyle = GOLD;
+  g.fillText('haomajixiong.pages.dev', cx, 874);
+  g.font = CF(400, 10.5); g.fillStyle = '#8b83a0';
+  g.fillText('传统民俗数理 · 文化娱乐参考 · 不构成任何决策建议', cx, 893);
   return cv;
-}
-
-/* canvas → Blob（失败则退回 dataURL） */
-function canvasBlob(cv) {
-  return new Promise(res => {
-    if (cv.toBlob) cv.toBlob(b => b ? res(b) : res(null), 'image/png', 0.95);
-    else res(null);
-  });
 }
 
 function dataURLtoBlob(durl) {
@@ -222,43 +218,178 @@ export function initShare(deps) {
     return;
   }
 
-  let blob = await canvasBlob(cv);
-  let url = null;
-  if (blob) url = URL.createObjectURL(blob);
-  else {
-    const durl = cv.toDataURL('image/png');
-    blob = dataURLtoBlob(durl);
-    url = durl;                       // data URL 可直接作为 img.src
-  }
-
   const fname = `号码玄机-${LAST.num}.png`;
+  const shareTitle = `${LAST.grade.qian} · ${Math.round(LAST.total)} 分`;
+  const shareText = `我的手机号测算：${LAST.grade.grade} 级 · ${LAST.grade.qian}｜${Math.round(LAST.total)} 分`;
+  await exportCanvasImage(cv, fname, shareTitle, shareText, { $, say });
+  };
+}
+
+/* ---------- 对比成图 ----------
+   "帮我选号"天然是社交场景：对比表是最该被分享的东西。
+   布局：每号一列（分数卡 + 迷你雷达），一眼看出形状差异，细节表留在站内。 */
+const CMP_W = 720, CMP_H = 870;
+const CMP_COLORS = ['#d9b877', '#63d392', '#7fb3e8', '#e8a0b0'];
+
+function cmpRadar(g, cx, cy, R, dims, color, clamp) {
+  const n = dims.length;
+  const pt = (i, f) => {
+    const a = -Math.PI / 2 + i * 2 * Math.PI / n;
+    return [cx + Math.cos(a) * R * f, cy + Math.sin(a) * R * f];
+  };
+  g.strokeStyle = '#332c42'; g.lineWidth = 1;
+  for (const f of [1, 0.75, 0.5, 0.25]) {
+    g.beginPath();
+    for (let i = 0; i < n; i++) { const [x, y] = pt(i, f); i ? g.lineTo(x, y) : g.moveTo(x, y); }
+    g.closePath(); g.stroke();
+  }
+  for (let i = 0; i < n; i++) { const [x, y] = pt(i, 1); g.beginPath(); g.moveTo(cx, cy); g.lineTo(x, y); g.stroke(); }
+  g.beginPath();
+  dims.forEach((v, i) => { const [x, y] = pt(i, clamp(v, 5, 100) / 100); i ? g.lineTo(x, y) : g.moveTo(x, y); });
+  g.closePath();
+  g.fillStyle = color + '3d'; g.fill();
+  g.strokeStyle = color; g.lineWidth = 2; g.stroke();
+  g.fillStyle = color;
+  dims.forEach((v, i) => { const [x, y] = pt(i, clamp(v, 5, 100) / 100); g.beginPath(); g.arc(x, y, 2.6, 0, Math.PI * 2); g.fill(); });
+  const DN = ['财', '事', '情', '健', '人'];
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = CF(400, 10); g.fillStyle = '#9b93a8';
+  for (let i = 0; i < n; i++) { const [x, y] = pt(i, 1.34); g.fillText(DN[i], x, y); }
+}
+
+export function drawCompareCard(list, verdict, clamp) {
+  const S = Math.min(2, Math.max(1, Math.ceil(window.devicePixelRatio || 2)));
+  const cv = document.createElement('canvas');
+  cv.width = CMP_W * S; cv.height = CMP_H * S;
+  const g = cv.getContext('2d');
+  g.scale(S, S);
+
+  const N = list.length;
+  const PAD = 40, GAP = 14;
+  const colW = (CMP_W - PAD * 2 - (N - 1) * GAP) / N;
+
+  const bg = g.createLinearGradient(0, 0, 0, CMP_H);
+  bg.addColorStop(0, '#181422'); bg.addColorStop(0.45, '#100e17'); bg.addColorStop(1, '#0b0a10');
+  g.fillStyle = bg; g.fillRect(0, 0, CMP_W, CMP_H);
+  const gl = g.createRadialGradient(CMP_W / 2, -30, 20, CMP_W / 2, -30, 420);
+  gl.addColorStop(0, 'rgba(217,184,119,.20)'); gl.addColorStop(1, 'rgba(217,184,119,0)');
+  g.fillStyle = gl; g.fillRect(0, 0, CMP_W, 400);
+
+  /* 头部 */
+  const cx = CMP_W / 2;
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = CF(700, 27); g.fillStyle = '#f4e0b0';
+  g.fillText('号码对比', cx, 58);
+  g.font = CF(400, 12.5); g.fillStyle = '#9b93a8';
+  g.fillText(`☯\ufe0e 号码玄机 · ${N} 个候选`, cx, 88);
+
+  g.strokeStyle = '#2c2537'; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(PAD, 118); g.lineTo(CMP_W - PAD, 118); g.stroke();
+
+  /* 分数卡（按总分降序） */
+  const numFs = N >= 4 ? 11.5 : 13;
+  list.forEach((x, i) => {
+    const color = CMP_COLORS[i % CMP_COLORS.length];
+    const x0 = PAD + i * (colW + GAP);
+    g.fillStyle = 'rgba(255,255,255,.05)';
+    rrect(g, x0, 142, colW, 148, 12); g.fill();
+    g.fillStyle = color;
+    rrect(g, x0, 142, colW, 4, 2); g.fill();
+
+    g.fillStyle = color;
+    rrect(g, x0 + colW / 2 - 30, 158, 60, 20, 10); g.fill();
+    g.font = CF(700, 12); g.fillStyle = '#1c1508';
+    g.fillText(`${x.g} · ${x.luck}`, x0 + colW / 2, 168);
+
+    g.font = CF(700, 30); g.fillStyle = '#f4e0b0';
+    g.fillText(String(Math.round(x.total)), x0 + colW / 2, 208);
+    g.font = CF(400, 10.5); g.fillStyle = '#8b83a0';
+    g.fillText('综合评分', x0 + colW / 2, 236);
+
+    g.font = CF(600, numFs); g.fillStyle = '#d9b877';
+    g.fillText(fmtFull(x.num), x0 + colW / 2, 268);
+  });
+
+  g.strokeStyle = '#2c2537';
+  g.beginPath(); g.moveTo(PAD, 316); g.lineTo(CMP_W - PAD, 316); g.stroke();
+
+  /* 迷你雷达（按加入顺序，颜色与列表/页内一致） */
+  const RY = 470, R = Math.min(colW * 0.36, 96);
+  list.forEach((x, i) => {
+    const color = CMP_COLORS[i % CMP_COLORS.length];
+    const cx2 = PAD + i * (colW + GAP) + colW / 2;
+    cmpRadar(g, cx2, RY, R, x.dims, color, clamp);
+    g.font = CF(600, numFs); g.fillStyle = color;
+    g.fillText(fmtFull(x.num), cx2, RY + R + 26);
+  });
+
+  g.strokeStyle = '#2c2537';
+  g.beginPath(); g.moveTo(PAD, RY + R + 52); g.lineTo(CMP_W - PAD, RY + R + 52); g.stroke();
+
+  /* 各维最强（并列都标） */
+  const DIMN = ['财运', '事业', '感情', '健康', '人际'];
+  const MARK = ['①', '②', '③', '④'];
+  const winners = DIMN.map((_, d) => {
+    let mx = -1;
+    list.forEach(x => { const v = (x.dims || [])[d] ?? -1; if (v > mx) mx = v; });
+    return list.map((x, i) => (((x.dims || [])[d] ?? -1) === mx ? MARK[i] : '')).join('');
+  });
+  let wy = RY + R + 84;
+  g.font = CF(400, 12.5); g.fillStyle = '#8b83a0';
+  g.fillText('各维最强', cx, wy); wy += 26;
+  g.font = CF(600, 13.5);
+  const parts = DIMN.map((n, d) => `${n} ${winners[d]}`).join('   ');
+  g.fillStyle = '#f4e0b0';
+  g.fillText(parts, cx, wy); wy += 30;
+
+  /* 结论（来自 buildTable，与页内一致） */
+  g.font = CF(400, 12.5); g.fillStyle = '#bdb6c6';
+  for (const ln of wrapText(g, verdict.summary, CMP_W - PAD * 2)) { g.fillText(ln, cx, wy); wy += 20; }
+  g.fillStyle = '#9b93a8';
+  for (const ln of wrapText(g, verdict.sub, CMP_W - PAD * 2)) { g.fillText(ln, cx, wy); wy += 20; }
+
+  g.textAlign = 'center';
+  g.font = CF(600, 13); g.fillStyle = '#d9b877';
+  g.fillText('haomajixiong.pages.dev', cx, CMP_H - 40);
+  g.font = CF(400, 10.5); g.fillStyle = '#8b83a0';
+  g.fillText('传统民俗数理 · 文化娱乐参考', cx, CMP_H - 18);
+  return cv;
+}
+
+/* 出图后的统一链路：系统分享(带文件) → 下载 → 弹层长按保存。
+   结果卡与对比卡共用，避免两条降级路径日后改不同步。 */
+export async function exportCanvasImage(cv, fname, title, text, io) {
+  const { $, say } = io;
+  /* 不用 cv.toBlob：其回调在部分 WebView 里可能永不触发（实测把整个流程挂死，
+     toast 停在"正在生成…"不再前进）。toDataURL 是同步 API，先取数据 URL
+     再转 Blob，路径确定、无回调依赖。 */
+  const durl = cv.toDataURL('image/png');
+  const blob = dataURLtoBlob(durl);
+  const url = URL.createObjectURL(blob);
   const file = new File([blob], fname, { type: 'image/png' });
 
-  /* ① 系统分享（能带文件最好） */
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+  /* navigator.share 要求「用户激活」。激活过期时它不按规范抛 NotAllowedError，
+     而是可能永久挂起（实测：toast 停在初始文案、整个流程卡死）。
+     双保险：① 无激活直接跳过系统分享走降级；② 有激活也加超时赛跑兜底。 */
+  const fresh = !navigator.userActivation || navigator.userActivation.isActive;
+  if (fresh && navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
-      await navigator.share({
-        files: [file],
-        title: `${LAST.grade.qian} · ${Math.round(LAST.total)} 分`,
-        text: `我的手机号测算：${LAST.grade.grade} 级 · ${LAST.grade.qian}｜${Math.round(LAST.total)} 分`
-      });
+      await Promise.race([
+        navigator.share({ files: [file], title, text }),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('share-timeout')), 10000))
+      ]);
       say('✓ 已唤起系统分享');
       return;
     } catch (e) {
       if (e && e.name === 'AbortError') { say('已取消分享'); return; }
     }
   }
-
-  /* ② 退化为下载 */
   try {
     const a = document.createElement('a');
     a.href = url; a.download = fname;
     document.body.appendChild(a); a.click(); a.remove();
     say('✓ 已生成图片，若未自动下载请改用长按保存');
-  } catch (e) { /* 继续兜底 */ }
-
-  /* ③ 最终兜底：展示图片引导长按保存 */
+  } catch (e) { /* 继续走兜底 */ }
   showImageModal($, url, '长按图片可保存到相册');
   say('已生成分享图 · 长按图片保存');
-  };
 }

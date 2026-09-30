@@ -1,9 +1,9 @@
 /* app.js · 界面层（DOM + SVG，零 canvas） */
-import { analyze, validate, normalizeInput } from './engine.js?v=20260929o';
+import { analyze, validate, normalizeInput } from './engine.js?v=20260929s';
 import { CIGROUP, CIZERO, FIVE, NUM, TAIL, WUXING_ORDER, WUXING_TEXT, LEVEL_W, numLevel, carrierOf }
-  from './data.js?v=20260929o';
-import { initShare } from './share.js?v=20260929o';
-import { initCompare } from './compare.js?v=20260929o';
+  from './data.js?v=20260929s';
+import { initShare, drawCompareCard, exportCanvasImage } from './share.js?v=20260929s';
+import { initCompare } from './compare.js?v=20260929s';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c =>
@@ -508,11 +508,28 @@ function renderHist(list) {
 }
 
 /* ---------- 启动 ---------- */
+/* 对比成图：复用 share.js 的绘制与出图链路（分享→下载→长按保存） */
+async function shareCompareCard(list, verdict) {
+  toast('正在生成对比图…');
+  try {
+    const cv = drawCompareCard(list, verdict, clamp);
+    await exportCanvasImage(
+      cv,
+      `号码玄机-对比-${list.length}号.png`,
+      '号码对比 · 帮我选号',
+      '几个候选号并排比过了，帮我看看选哪个',
+      { $: s => document.querySelector(s), say: toast });
+  } catch (e) {
+    toast('生成对比图失败，请稍后再试');
+  }
+}
+
 const compare = initCompare({
   $: s => document.querySelector(s),
   esc,
   analyze,
-  toast
+  toast,
+  shareCompare: shareCompareCard
 });
 const shareCard = initShare({
   getLast: () => LAST,
@@ -526,3 +543,10 @@ renderHist(readHist());
 const histClear = $('#hist-clear');
 if (histClear) histClear.addEventListener('click', () => { writeHist([]); renderHist([]); });
 window.__bootOK = true;
+
+/* 离线可用：纯客户端工具，注册 SW 后从主屏打开即秒开、断网可用。
+   策略是网络优先，不会把用户钉在旧代码上（详见 sw.js 头注释）。
+   只在 https 下注册（本地 minis:// 预览无 SW，也不该注册）。 */
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
