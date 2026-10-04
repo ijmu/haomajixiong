@@ -89,10 +89,14 @@ ok(validate('138001380001').ok === false, '无区号超长同样拒绝（校验�
 ok(normalizeInput('1380013800012345') === '13800138000', '但输入框（硬上限）剥区号后截 11 位');
 console.log(`  ${intl.length} 组国际格式全部归一正确`);
 
-console.log('=== ④ 全输入域 fuzz：不得抛异常、输出必须合法 ===');
+/* iSH 模拟器下完整 analyze ≈2.6ms/次，30k 要 80s+；
+   默认 8000（统计效力足够），深检时 FUZZ_N=30000 node scripts/audit.mjs */
+const FUZZ_N = parseInt(process.env.FUZZ_N || '8000', 10);
+console.log(`=== ④ 全输入域 fuzz（${FUZZ_N} 样本）：不得抛异常、输出必须合法 ===`);
 let seed = 99, fz = 0, ex = 0, rangeBad = 0;
 const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
-for (let i = 0; i < 30000; i++) {
+for (let i = 0; i < FUZZ_N; i++) {
+  if (i % 2000 === 0 && i) console.error('  [进度]', i);
   let n = '1' + Math.floor(rnd() * 10);
   for (let j = 0; j < 9; j++) n += Math.floor(rnd() * 10);
   try {

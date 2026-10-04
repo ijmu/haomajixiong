@@ -1,6 +1,6 @@
 /* engine.js · 测算内核（纯函数，零 DOM，可单测 / 可在 Worker 里跑） */
 import { SHULI, CIGROUP, CIPAIR, CIZERO, FIVE, CARRIER, TAIL, NUM,
-         fmtNum, numLevel, LEVEL_W, carrierOf } from './data.js?v=20260929s';
+         fmtNum, numLevel, LEVEL_W, carrierOf } from './data.js?v=20260929u';
 
 /* ---------- 工具 ---------- */
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
@@ -41,6 +41,146 @@ export function validate(raw) {
    唯一实现：结果卡 / 历史 / 对比条 / 分享图都必须用它，禁止再造缩写格式。 */
 export const fmtFull = n => `${n.slice(0, 3)} ${n.slice(3, 7)} ${n.slice(7)}`;
 
+/* ---------- 选号推荐 ---------- */
+/* 五行 → 数字（河图）；星 → 两两组合（由 CIPAIR 反转） */
+export const DIGITS_OF = { 水: ['1', '6'], 火: ['2', '7'], 木: ['3', '8'], 金: ['4', '9'], 土: ['5', '0'] };
+const PAIRS_OF = (() => {
+  const m = {};
+  for (const [p, v] of Object.entries(CIPAIR)) (m[v.g] = m[v.g] || []).push(p);
+  return m;
+})();
+/* 维度 → 对其有正贡献的星（与 profile() 的系数方向一致） */
+const DIM_GOOD = {
+  cai: ['tiany', 'shengqi'], shi: ['yinian', 'fuwei'], qing: ['tiany', 'shengqi'],
+  jian: ['tiany', 'shengqi'], ren: ['shengqi', 'tiany']
+};
+const DIM_NAMES = { cai: '财运', shi: '事业', qing: '感情', jian: '健康', ren: '人际' };
+
+/* 吉利号型模板：生成尾 4 位（或尾 3 位豹子）。
+   候选数字避开 4（noFour），优先用补缺数字——号型与补缺同向时一举两得。 */
+function shapeLast4(shape, fillD, allowed, rng) {
+  const lucky = ['8', '6', '9', '2', '3', '7', '1'].filter(allowed);
+  /* fillD 与 lucky 拼接（不去重）= 补缺数字权重 ×2，属有意加权：
+     号型与补缺同向时一举两得。实测会系统性偏好补缺元素
+     （如感情弱 + 补火 → 豹子倾向 777），这是分数排名的真实结果，非偶然。 */
+  const pool = fillD.filter(allowed).concat(lucky);
+  const d = () => pool[Math.floor(rng() * pool.length)];
+  if (shape === 'baozi') { const c = d(); return c + c + c; }            // 尾3连
+  if (shape === 'duizi') { let a = d(), b = d(); while (b === a) b = d(); return a + a + b + b; }
+  if (shape === 'xunhuan') { let a = d(), b = d(); while (b === a) b = d(); return a + b + a + b; }
+  if (shape === 'shunzi') {
+    const starts = ['0', '5', '6', '7'].filter(s =>
+      [0, 1, 2, 3].every(k => allowed(String((+s + k) % 10))));
+    if (!starts.length) return null;
+    const s = +starts[Math.floor(rng() * starts.length)];
+    return [0, 1, 2, 3].map(k => String((s + k) % 10)).join('');
+  }
+  return null;
+}
+
+/**
+ * recommend(num, opts)：基于原号生成候选号并排序。
+ * @param opts.target 'auto'(最弱维) | 'all'(综合) | 'cai'|'shi'|'qing'|'jian'|'ren'
+ * @param opts.shape  'any'|'baozi'|'shunzi'|'duizi'|'xunhuan'
+ * @param opts.fill   五行补缺（候选须覆盖原号缺失元素），默认 true
+ * @param opts.noFour 避开数字 4，默认 true
+ * @param opts.rng    可注入伪随机（测试用），默认 Math.random
+ * @returns {ok, base, dimKey, list:[{num,total,g,luck,dims,deltaDim,deltaTotal,reasons}]}
+ */
+export function recommend(num, opts = {}) {
+  const base = analyze(num);
+  if (!base.ok) return { ok: false, err: base.err };
+
+  const rng = opts.rng || Math.random;
+  const target = opts.target || 'auto';
+  const shape = opts.shape || 'any';
+  const noFour = opts.noFour !== false;
+  const wantFill = opts.fill !== false;
+  const allowed = d => !noFour || d !== '4';
+  const pick = arr => arr[Math.floor(rng() * arr.length)];
+
+  const dimKey = target === 'auto'
+    ? [...base.dims].sort((a, b) => a.v - b.v)[0].k
+    : (target === 'all' ? null : target);
+  const dimName = dimKey ? DIM_NAMES[dimKey] : '综合';
+
+  /* 候选吉星对池（含 4 则剔除该对） */
+  const goodPairs = (dimKey ? DIM_GOOD[dimKey] : ['tiany', 'yinian', 'shengqi', 'fuwei'])
+    .flatMap(g => PAIRS_OF[g] || [])
+    .filter(p => [...p].every(allowed));
+  const fillD = wantFill ? base.five.missing.flatMap(e => DIGITS_OF[e]) : [];
+
+  const genTail = () => {
+    /* 前两对（吉星，权重低）+ 后 4 位（形态模板或另两对吉星）= 恒 8 位 */
+    const parts = [pick(goodPairs), pick(goodPairs)];
+    const last4 = shape !== 'any' ? shapeLast4(shape, fillD, allowed, rng) : null;
+    if (last4 && last4.length === 3) parts.push(pick(goodPairs)[0] + last4);
+    else if (last4) parts.push(last4);
+    else parts.push(pick(goodPairs), pick(goodPairs));
+    const tail = parts.join('').split('');
+    /* 五行补缺注入：只动非形态位（形态尾保持完整） */
+    if (fillD.length) {
+      const slots = shape !== 'any' ? [0, 1, 2, 3] : [0, 1, 2, 3, 4, 5];
+      for (const e of base.five.missing) {
+        if (!tail.some(c => DIGITS_OF[e].includes(c))) {
+          const cand = DIGITS_OF[e].filter(allowed);
+          if (cand.length) tail[pick(slots)] = pick(cand);
+        }
+      }
+    }
+    return tail.join('');
+  };
+
+  const seen = new Set([num]);
+  const cands = [];
+  let guard = 0;
+  while (cands.length < 140 && guard++ < 4000) {
+    const n = num.slice(0, 3) + genTail();
+    if (seen.has(n)) continue;
+    seen.add(n);
+    if (wantFill && base.five.missing.some(e => !n.split('').some(c => DIGITS_OF[e].includes(c)))) continue;
+    cands.push(n);
+  }
+
+  const rank = r => dimKey
+    ? r.dims.find(d => d.k === dimKey).v * 0.65 + r.total * 0.35
+    : r.total;
+
+  const list = cands
+    .map(n => analyze(n)).filter(r => r.ok)
+    .map(r => {
+      const bd = base.dims.find(d => d.k === dimKey) || { v: base.total };
+      const rd = dimKey ? r.dims.find(d => d.k === dimKey) : { v: r.total };
+      /* 理由：与原号逐项对比，只说真发生的变化 */
+      const reasons = [];
+      const covered = base.five.missing.filter(e => (r.five.cnt[e] || 0) > 0);
+      if (covered.length) {
+        reasons.push({ t: '五行', d: `补${covered.join('、')}：` +
+          covered.map(e => `${e}用${DIGITS_OF[e].filter(allowed).join('/')}`).join('，') });
+      }
+      const lastPair = r.magnet.groups[r.magnet.groups.length - 1];
+      const lg = CIGROUP[lastPair.info.g];
+      if (lg && lg.lucky > 0) {
+        reasons.push({ t: '尾磁', d: `尾入${lastPair.info.n}（${lastPair.pair}），全盘落点` });
+      }
+      const feats = r.pattern.feats.filter(f => f.k === 'good').slice(0, 2).map(f => f.t);
+      if (feats.length) reasons.push({ t: '号型', d: feats.join('；') });
+      const fmtD = (a, b) => `${Math.round(b)}（${b - a >= 0 ? '+' : ''}${(b - a).toFixed(1)}）`;
+      reasons.push({ t: '对比', d: dimKey
+        ? `${dimName} ${fmtD(bd.v, rd.v)} · 综合 ${fmtD(base.total, r.total)}`
+        : `综合 ${fmtD(base.total, r.total)}` });
+      return {
+        num: r.num, total: r.total, g: r.grade.grade, luck: r.grade.luck,
+        dims: r.dims.map(d => Math.round(d.v)),
+        deltaDim: +(rd.v - bd.v).toFixed(1), deltaTotal: +(r.total - base.total).toFixed(1),
+        reasons
+      };
+    })
+    .sort((a, b) => rank(analyze(b.num)) - rank(analyze(a.num)) || b.total - a.total)
+    .slice(0, 6);
+
+  return { ok: true, base, dimKey, dimName, list };
+}
 /* ---------- ① 81 数理灵数 ---------- */
 export function shuLi(num) {
   const last4 = parseInt(num.slice(-4), 10);

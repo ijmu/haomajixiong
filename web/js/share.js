@@ -1,4 +1,4 @@
-import { fmtFull } from './engine.js?v=20260929s';
+import { fmtFull } from './engine.js?v=20260929u';
 
 /* ---------- 分享成图 ---------- */
 /* 用 canvas 直接绘制（而不是把页面 SVG 光栅化）：SVG → Image → canvas 在部分 WebView

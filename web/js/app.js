@@ -1,9 +1,9 @@
 /* app.js · 界面层（DOM + SVG，零 canvas） */
-import { analyze, validate, normalizeInput } from './engine.js?v=20260929s';
+import { analyze, validate, normalizeInput, recommend, fmtFull } from './engine.js?v=20260929u';
 import { CIGROUP, CIZERO, FIVE, NUM, TAIL, WUXING_ORDER, WUXING_TEXT, LEVEL_W, numLevel, carrierOf }
-  from './data.js?v=20260929s';
-import { initShare, drawCompareCard, exportCanvasImage } from './share.js?v=20260929s';
-import { initCompare } from './compare.js?v=20260929s';
+  from './data.js?v=20260929u';
+import { initShare, drawCompareCard, exportCanvasImage } from './share.js?v=20260929u';
+import { initCompare } from './compare.js?v=20260929u';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c =>
@@ -268,12 +268,43 @@ function render(r) {
         <p>${esc(a.d)}</p>
       </div>`).join('') : '<p class="lead">此盘无明显弱项，无需特别化解。</p>'}
     <p class="tip">以上为民俗数理推演，非事实判断。号码不决定命运，习惯才决定。</p>
+  </section>
+
+  <section class="card">
+    <div class="card-h"><span class="ci">捌</span><h2>选号推荐</h2>
+      <span class="hint">以 ${esc(r.num.slice(0, 3))} 为号段生成</span></div>
+    <div class="rec-opts" id="rec-opts">
+      <div class="rec-row"><span class="rl">补强</span><div class="chips">
+        <button class="chip" data-k="target" data-v="auto">自动补弱</button>
+        <button class="chip" data-k="target" data-v="all">综合</button>
+        <button class="chip" data-k="target" data-v="cai">财运</button>
+        <button class="chip" data-k="target" data-v="shi">事业</button>
+        <button class="chip" data-k="target" data-v="qing">感情</button>
+        <button class="chip" data-k="target" data-v="jian">健康</button>
+        <button class="chip" data-k="target" data-v="ren">人际</button>
+      </div></div>
+      <div class="rec-row"><span class="rl">号型</span><div class="chips">
+        <button class="chip" data-k="shape" data-v="any">不限</button>
+        <button class="chip" data-k="shape" data-v="baozi">豹子</button>
+        <button class="chip" data-k="shape" data-v="shunzi">顺子</button>
+        <button class="chip" data-k="shape" data-v="duizi">对子</button>
+        <button class="chip" data-k="shape" data-v="xunhuan">循环</button>
+      </div></div>
+      <div class="rec-row"><span class="rl">约束</span><div class="chips">
+        <button class="chip" id="rec-fill">五行补缺</button>
+        <button class="chip" id="rec-nofour">避开 4</button>
+      </div></div>
+    </div>
+    <div class="rec-grid" id="rec-grid"></div>
+    <p class="tip">推荐为本机即时生成的候选，能否办理以运营商号池为准；同号段可携号转网。选号看相对差异，不看绝对分数。</p>
   </section>`;
 
   resultBox.hidden = false;
   resultBox.setAttribute('tabindex', '-1');
   resultBox.setAttribute('aria-label', '测算结果');
   bindActs();
+  bindRec();
+  renderRec();
   saveHist(r);
   resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
   /* 把焦点移到结果区：键盘/读屏用户不必从页首重新 tab 一遍 */
@@ -453,6 +484,69 @@ function bindActs() {
     resultBox.hidden = true; resultBox.innerHTML = '';
     $('#card-input').scrollIntoView({ behavior: 'smooth', block: 'start' });
     setTimeout(() => phone.focus(), 360);
+  });
+}
+
+/* ---------- 选号推荐 ---------- */
+const REC = { target: 'auto', shape: 'any', fill: true, noFour: true };
+
+function renderRec() {
+  const grid = $('#rec-grid');
+  if (!grid || !LAST) return;
+  const rec = recommend(LAST.num, REC);
+  if (!rec.ok) { grid.innerHTML = '<p class="lead">' + esc(rec.err) + '</p>'; return; }
+
+  grid.innerHTML = rec.list.map(c => {
+    const cls = c.g === 'S' || c.g === 'A' ? 'good' : (c.g === 'E' || c.g === 'D' ? 'bad' : '');
+    return `<div class="rec-card">
+      <div class="rec-top">
+        <b class="rec-num">${esc(fmtFull(c.num))}</b>
+        <span class="rec-score ${cls}">${esc(c.g)} ${Math.round(c.total)}</span>
+      </div>
+      <div class="rec-delta">
+        <span class="${c.deltaDim >= 0 ? 'up' : 'down'}">${esc(rec.dimName)} ${c.deltaDim >= 0 ? '+' : ''}${c.deltaDim}</span>
+        <span class="${c.deltaTotal >= 0 ? 'up' : 'down'}">综合 ${c.deltaTotal >= 0 ? '+' : ''}${c.deltaTotal}</span>
+      </div>
+      <ul class="rec-reasons">${c.reasons.map(x =>
+        `<li><i>${esc(x.t)}</i><span>${esc(x.d)}</span></li>`).join('')}</ul>
+      <div class="rec-acts">
+        <button class="btn-mini" data-use="${esc(c.num)}">测这个</button>
+        <button class="btn-mini ghost" data-add="${esc(c.num)}">对比＋</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('[data-use]').forEach(b => b.addEventListener('click', () => {
+    const n = b.getAttribute('data-use');
+    CUR = n; phone.value = fmtInput(n); paint(); hideErr();
+    runCast(n);
+  }));
+  grid.querySelectorAll('[data-add]').forEach(b => b.addEventListener('click', () => {
+    const r2 = analyze(b.getAttribute('data-add'));
+    if (r2 && r2.ok) compare.add(r2);
+  }));
+}
+
+function bindRec() {
+  const box = $('#rec-opts');
+  if (!box) return;
+  box.querySelectorAll('.chip[data-k]').forEach(x =>
+    x.classList.toggle('on', REC[x.dataset.k] === x.dataset.v));
+  const f = $('#rec-fill'), n4 = $('#rec-nofour');
+  if (f) f.classList.toggle('on', REC.fill);
+  if (n4) n4.classList.toggle('on', REC.noFour);
+
+  box.addEventListener('click', e => {
+    const b = e.target.closest('button.chip');
+    if (!b) return;
+    if (b.dataset.k) REC[b.dataset.k] = b.dataset.v;
+    else if (b.id === 'rec-fill') REC.fill = !REC.fill;
+    else if (b.id === 'rec-nofour') REC.noFour = !REC.noFour;
+    box.querySelectorAll('.chip[data-k]').forEach(x =>
+      x.classList.toggle('on', REC[x.dataset.k] === x.dataset.v));
+    if (f) f.classList.toggle('on', REC.fill);
+    if (n4) n4.classList.toggle('on', REC.noFour);
+    renderRec();
   });
 }
 

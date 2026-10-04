@@ -6,7 +6,7 @@
    initCompare() 只负责把它们接到界面上。
    依赖注入（避免跨模块共享作用域）：$ / esc / analyze / toast
 */
-import { fmtFull } from './engine.js?v=20260929s';
+import { fmtFull } from './engine.js?v=20260929u';
 
 const CKEY = 'hl_cmp';
 const MAX = 4;
