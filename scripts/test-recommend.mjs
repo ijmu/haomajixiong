@@ -1,5 +1,5 @@
 /* 选号推荐单测：锁定生成约束与排序行为 */
-import { analyze, recommend } from '../web/js/engine.js';
+import { analyze, recommend, sanitizePlans, sanitizeRec, isPlan } from '../web/js/engine.js';
 
 let pass = 0, fail = 0; const bad = [];
 const ok = (c, m) => { if (c) pass++; else { fail++; bad.push(m); } };
@@ -80,6 +80,28 @@ console.log('=== ⑧ 理由质量 ===');
 const noEmpty = base1.list.every(c => c.reasons.length >= 1 && c.reasons.every(x => x.t && x.d));
 ok(noEmpty, '每个候选都有非空理由');
 console.log('  首选理由: ' + base1.list[0].reasons.map(x => x.t).join('/'));
+
+console.log('=== ⑨ 方案存储校验（localStorage 当不可信数据）===');
+const goodPlan = { ts: 1, base: '13912345678',
+  opts: { target: 'cai', shape: 'baozi', fill: true, noFour: true },
+  items: [{ num: '13911112222', total: 80, g: 'A', deltaDim: 5, deltaTotal: 3 }] };
+ok(isPlan(goodPlan), '合法方案通过');
+for (const [label, mut] of [
+  ['缺 deltaDim', p => ({ ...p, items: [{ ...p.items[0], deltaDim: undefined }] })],
+  ['total 为 NaN', p => ({ ...p, items: [{ ...p.items[0], total: NaN }] })],
+  ['非法 target', p => ({ ...p, opts: { ...p.opts, target: 'xx' } })],
+  ['非法 shape', p => ({ ...p, opts: { ...p.opts, shape: 'nope' } })],
+  ['fill 非布尔', p => ({ ...p, opts: { ...p.opts, fill: 'yes' } })],
+  ['base 非法', p => ({ ...p, base: 'x' })],
+  ['items 空', p => ({ ...p, items: [] })],
+  ['items 7 条', p => ({ ...p, items: Array(7).fill(p.items[0]) })],
+  ['ts 非数', p => ({ ...p, ts: 'now' })],
+]) ok(!isPlan(mut(goodPlan)), `残缺方案应被拒: ${label}`);
+ok(sanitizePlans(Array(9).fill(goodPlan)).length === 6, '方案上限 6');
+ok(sanitizePlans('garbage').length === 0, '非数组 → 空');
+ok(sanitizeRec({ target: 'cai' }) === null, 'sanitizeRec 缺字段 → null');
+ok(JSON.stringify(sanitizeRec(goodPlan.opts)) === JSON.stringify(goodPlan.opts), 'sanitizeRec 合法原样返回');
+console.log('  方案校验与截断全部正确（上限 6）');
 
 console.log(`\n===== 通过 ${pass} / 失败 ${fail} =====`);
 if (bad.length) bad.forEach(b2 => console.log('  ✗ ' + b2));

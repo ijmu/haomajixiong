@@ -1,6 +1,6 @@
 /* engine.js · 测算内核（纯函数，零 DOM，可单测 / 可在 Worker 里跑） */
 import { SHULI, CIGROUP, CIPAIR, CIZERO, FIVE, CARRIER, TAIL, NUM,
-         fmtNum, numLevel, LEVEL_W, carrierOf } from './data.js?v=20260929u';
+         fmtNum, numLevel, LEVEL_W, carrierOf } from './data.js?v=20260929v';
 
 /* ---------- 工具 ---------- */
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
@@ -77,6 +77,30 @@ function shapeLast4(shape, fillD, allowed, rng) {
   }
   return null;
 }
+
+/* ---------- 方案存储的校验（纯函数，可单测） ----------
+   与 compare 的快照同理：localStorage 里的东西一律当不可信数据，
+   版本迭代或手改都可能留下畸形条目，读回必须逐字段校验。 */
+export const REC_TARGETS = ['auto', 'all', 'cai', 'shi', 'qing', 'jian', 'ren'];
+export const REC_SHAPES = ['any', 'baozi', 'shunzi', 'duizi', 'xunhuan'];
+
+export function sanitizeRec(o) {
+  if (!o || typeof o !== 'object') return null;
+  if (!REC_TARGETS.includes(o.target) || !REC_SHAPES.includes(o.shape)) return null;
+  if (typeof o.fill !== 'boolean' || typeof o.noFour !== 'boolean') return null;
+  return { target: o.target, shape: o.shape, fill: o.fill, noFour: o.noFour };
+}
+
+export const isPlan = p => !!p && typeof p === 'object'
+  && Number.isFinite(p.ts)
+  && typeof p.base === 'string' && /^1\d{10}$/.test(p.base)
+  && !!sanitizeRec(p.opts)
+  && Array.isArray(p.items) && p.items.length > 0 && p.items.length <= 6
+  && p.items.every(x => !!x && typeof x.num === 'string' && /^1\d{10}$/.test(x.num)
+    && Number.isFinite(x.total) && typeof x.g === 'string'
+    && Number.isFinite(x.deltaDim) && Number.isFinite(x.deltaTotal));
+
+export const sanitizePlans = arr => Array.isArray(arr) ? arr.filter(isPlan).slice(0, 6) : [];
 
 /**
  * recommend(num, opts)：基于原号生成候选号并排序。

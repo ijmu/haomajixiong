@@ -1,9 +1,10 @@
 /* app.js · 界面层（DOM + SVG，零 canvas） */
-import { analyze, validate, normalizeInput, recommend, fmtFull } from './engine.js?v=20260929u';
+import { analyze, validate, normalizeInput, recommend, fmtFull,
+         sanitizePlans, sanitizeRec } from './engine.js?v=20260929v';
 import { CIGROUP, CIZERO, FIVE, NUM, TAIL, WUXING_ORDER, WUXING_TEXT, LEVEL_W, numLevel, carrierOf }
-  from './data.js?v=20260929u';
-import { initShare, drawCompareCard, exportCanvasImage } from './share.js?v=20260929u';
-import { initCompare } from './compare.js?v=20260929u';
+  from './data.js?v=20260929v';
+import { initShare, drawCompareCard, exportCanvasImage } from './share.js?v=20260929v';
+import { initCompare } from './compare.js?v=20260929v';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c =>
@@ -296,6 +297,11 @@ function render(r) {
       </div></div>
     </div>
     <div class="rec-grid" id="rec-grid"></div>
+    <div class="plan-bar">
+      <button class="btn-sub" id="plan-save">存为方案</button>
+      <button class="btn-sub ghost" id="plan-toggle">我的方案</button>
+    </div>
+    <div id="plan-list" hidden></div>
     <p class="tip">推荐为本机即时生成的候选，能否办理以运营商号池为准；同号段可携号转网。选号看相对差异，不看绝对分数。</p>
   </section>`;
 
@@ -304,6 +310,7 @@ function render(r) {
   resultBox.setAttribute('aria-label', '测算结果');
   bindActs();
   bindRec();
+  bindPlans();
   renderRec();
   saveHist(r);
   resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -488,12 +495,13 @@ function bindActs() {
 }
 
 /* ---------- 选号推荐 ---------- */
-const REC = { target: 'auto', shape: 'any', fill: true, noFour: true };
+const REC = Object.assign({ target: 'auto', shape: 'any', fill: true, noFour: true }, readRec() || {});
 
 function renderRec() {
   const grid = $('#rec-grid');
   if (!grid || !LAST) return;
   const rec = recommend(LAST.num, REC);
+  LAST_REC = rec;
   if (!rec.ok) { grid.innerHTML = '<p class="lead">' + esc(rec.err) + '</p>'; return; }
 
   grid.innerHTML = rec.list.map(c => {
@@ -546,7 +554,125 @@ function bindRec() {
       x.classList.toggle('on', REC[x.dataset.k] === x.dataset.v));
     if (f) f.classList.toggle('on', REC.fill);
     if (n4) n4.classList.toggle('on', REC.noFour);
+    try { localStorage.setItem(RKEY, JSON.stringify(REC)); } catch (e) { }
     renderRec();
+  });
+}
+
+/* ---------- 推荐方案（本机存储） ----------
+   方案 = 配置 + 当时那 6 个号的快照。只存配置会导致回看时号码全变（推荐是随机生成），
+   所以快照必须一起存，回看才是同一组。 */
+const PKEY = 'hl_plans', RKEY = 'hl_rec';
+const TGT_NAMES = { auto: '自动补弱', all: '综合', cai: '财运', shi: '事业', qing: '感情', jian: '健康', ren: '人际' };
+const SHP_NAMES = { any: '不限号型', baozi: '豹子', shunzi: '顺子', duizi: '对子', xunhuan: '循环' };
+let LAST_REC = null;
+
+function readPlans() {
+  try { return sanitizePlans(JSON.parse(localStorage.getItem(PKEY) || '[]')); } catch (e) { return []; }
+}
+function writePlans(l) {
+  try { localStorage.setItem(PKEY, JSON.stringify(l.slice(0, 6))); } catch (e) { /* 隐私模式静默 */ }
+}
+function readRec() {
+  try { return sanitizeRec(JSON.parse(localStorage.getItem(RKEY) || 'null')); } catch (e) { return null; }
+}
+
+function planTags(p) {
+  const t = [TGT_NAMES[p.opts.target] || p.opts.target, SHP_NAMES[p.opts.shape] || p.opts.shape];
+  if (p.opts.fill) t.push('补缺');
+  if (p.opts.noFour) t.push('避4');
+  return t;
+}
+
+function renderPlans() {
+  const box = $('#plan-list');
+  if (!box) return;
+  const plans = readPlans();
+  const btn = $('#plan-toggle');
+  if (btn) btn.textContent = plans.length ? `我的方案（${plans.length}）` : '我的方案';
+  if (!plans.length) {
+    box.innerHTML = '<p class="lead">还没有方案。调好补强方向与号型后点「存为方案」，' +
+      '之后换号、换设备前都能回看这一组候选。</p>';
+    return;
+  }
+  box.innerHTML = plans.map((p, i) => `
+    <div class="plan-row" data-i="${i}">
+      <div class="plan-h" data-open="${i}">
+        <b>${esc(fmtFull(p.base))}</b>
+        <i>${esc(new Date(p.ts).toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }))}</i>
+        <span class="plan-tags">${planTags(p).map(t => `<em>${esc(t)}</em>`).join('')}</span>
+      </div>
+      <div class="plan-items" hidden>
+        ${p.items.map(x => `
+          <div class="plan-it">
+            <b>${esc(fmtFull(x.num))}</b>
+            <span class="hs">${Math.round(x.total)}</span>
+            <span class="${x.deltaDim >= 0 ? 'up' : 'down'}">${x.deltaDim >= 0 ? '+' : ''}${x.deltaDim}</span>
+            <span class="plan-acts">
+              <button class="btn-mini" data-use="${esc(x.num)}">测</button>
+              <button class="btn-mini ghost" data-add="${esc(x.num)}">＋</button>
+            </span>
+          </div>`).join('')}
+        <div class="plan-ops">
+          <button class="btn-mini ghost" data-load="${i}">载入此配置重生成</button>
+          <button class="btn-mini ghost" data-del="${i}">删除方案</button>
+        </div>
+      </div>
+    </div>`).join('');
+
+  box.querySelectorAll('[data-open]').forEach(h => h.addEventListener('click', () => {
+    const items = h.parentElement.querySelector('.plan-items');
+    items.hidden = !items.hidden;
+  }));
+  box.querySelectorAll('[data-use]').forEach(b => b.addEventListener('click', ev => {
+    ev.stopPropagation();
+    const n = b.getAttribute('data-use');
+    CUR = n; phone.value = fmtInput(n); paint(); hideErr(); runCast(n);
+  }));
+  box.querySelectorAll('[data-add]').forEach(b => b.addEventListener('click', ev => {
+    ev.stopPropagation();
+    const r2 = analyze(b.getAttribute('data-add'));
+    if (r2 && r2.ok) compare.add(r2);
+  }));
+  box.querySelectorAll('[data-load]').forEach(b => b.addEventListener('click', ev => {
+    ev.stopPropagation();
+    const p = readPlans()[+b.getAttribute('data-load')];
+    if (!p) return;
+    Object.assign(REC, p.opts);
+    bindRec(); renderRec();
+    $('#rec-opts').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast('已载入方案配置，重新生成中');
+  }));
+  box.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', ev => {
+    ev.stopPropagation();
+    const l = readPlans();
+    l.splice(+b.getAttribute('data-del'), 1);
+    writePlans(l); renderPlans();
+    toast('方案已删除');
+  }));
+}
+
+function bindPlans() {
+  const save = $('#plan-save'), tog = $('#plan-toggle');
+  if (save) save.addEventListener('click', () => {
+    if (!LAST_REC || !LAST_REC.ok || !LAST) { toast('先测算一个号码'); return; }
+    const plans = readPlans();
+    plans.unshift({
+      ts: Date.now(), base: LAST.num,
+      opts: { target: REC.target, shape: REC.shape, fill: REC.fill, noFour: REC.noFour },
+      items: LAST_REC.list.map(c => ({
+        num: c.num, total: c.total, g: c.g, deltaDim: c.deltaDim, deltaTotal: c.deltaTotal
+      }))
+    });
+    writePlans(plans);
+    renderPlans();
+    $('#plan-list').hidden = false;
+    toast(`已存为方案（共 ${readPlans().length} 个）`);
+  });
+  if (tog) tog.addEventListener('click', () => {
+    const box = $('#plan-list');
+    box.hidden = !box.hidden;
+    if (!box.hidden) renderPlans();
   });
 }
 

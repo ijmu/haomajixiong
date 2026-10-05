@@ -492,3 +492,22 @@ details.faq[open] summary::before{transform:rotate(90deg)}
 .faq-b p{margin:0 0 9px;font-size:12px;line-height:1.8;color:var(--dim)}
 .faq-b p b{color:var(--txt);font-weight:600}
 .faq-b p:last-child{margin-bottom:0}
+
+/* ---------- 推荐方案 ---------- */
+.plan-bar{display:flex;gap:8px;margin-top:12px}
+#plan-list{margin-top:10px}
+#plan-list .lead{font-size:12px;color:var(--dim);line-height:1.7}
+.plan-row{border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden;background:var(--card)}
+.plan-h{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;flex-wrap:wrap}
+.plan-h b{font-family:var(--ffm);font-size:13.5px;color:var(--gold2)}
+.plan-h i{font-style:normal;font-size:11px;color:var(--dim2)}
+.plan-tags{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto}
+.plan-tags em{font-style:normal;font-size:10px;padding:2px 7px;border-radius:99px;
+  border:1px solid rgba(217,184,119,.28);color:var(--gold);background:rgba(217,184,119,.08)}
+.plan-items{border-top:1px solid var(--line);padding:8px 12px 10px}
+.plan-it{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px}
+.plan-it b{font-family:var(--ffm);font-size:12.5px;color:var(--txt)}
+.plan-it .hs{font-weight:700;color:var(--gold2)}
+.plan-it .up,.plan-it .down{font-size:10.5px;padding:1px 6px;border-radius:5px}
+.plan-acts{margin-left:auto;display:flex;gap:6px}
+.plan-ops{display:flex;gap:8px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
