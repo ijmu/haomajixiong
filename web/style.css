@@ -511,3 +511,8 @@ details.faq[open] summary::before{transform:rotate(90deg)}
 .plan-it .up,.plan-it .down{font-size:10.5px;padding:1px 6px;border-radius:5px}
 .plan-acts{margin-left:auto;display:flex;gap:6px}
 .plan-ops{display:flex;gap:8px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+
+/* ---------- 主屏 App 化（black-translucent 状态栏融合） ---------- */
+/* 浏览器里 env=0，观感不变；从主屏 standalone 打开时补出刘海/灵动岛的高度 */
+main{padding-top:env(safe-area-inset-top)}
+footer{padding-bottom:calc(28px + env(safe-area-inset-bottom))}

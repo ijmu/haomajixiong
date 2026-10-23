@@ -1,10 +1,10 @@
 /* app.js · 界面层（DOM + SVG，零 canvas） */
 import { analyze, validate, normalizeInput, recommend, fmtFull,
-         sanitizePlans, sanitizeRec } from './engine.js?v=20260929v';
+         sanitizePlans, sanitizeRec } from './engine.js?v=20260929x';
 import { CIGROUP, CIZERO, FIVE, NUM, TAIL, WUXING_ORDER, WUXING_TEXT, LEVEL_W, numLevel, carrierOf }
-  from './data.js?v=20260929v';
-import { initShare, drawCompareCard, exportCanvasImage } from './share.js?v=20260929v';
-import { initCompare } from './compare.js?v=20260929v';
+  from './data.js?v=20260929x';
+import { initShare, drawCompareCard, exportCanvasImage } from './share.js?v=20260929x';
+import { initCompare } from './compare.js?v=20260929x';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c =>
@@ -760,6 +760,16 @@ const shareCard = initShare({
 });
 paint();
 renderHist(readHist());
+
+/* 深链支持：https://laicai.us.ci/?n=13800138000 直接出结果。
+   现在用于手动分享；后续任何"把某个号的结论发给别人"的路径都走它。 */
+try {
+  const qn = new URLSearchParams(location.search).get('n');
+  if (qn) {
+    const v = validate(qn);
+    if (v.ok) { CUR = v.num; phone.value = fmtInput(v.num); paint(); runCast(v.num); }
+  }
+} catch (e) { }
 const histClear = $('#hist-clear');
 if (histClear) histClear.addEventListener('click', () => { writeHist([]); renderHist([]); });
 window.__bootOK = true;

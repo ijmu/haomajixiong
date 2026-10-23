@@ -1,4 +1,4 @@
-import { fmtFull } from './engine.js?v=20260929v';
+import { fmtFull } from './engine.js?v=20260929x';
 
 /* ---------- 分享成图 ---------- */
 /* 用 canvas 直接绘制（而不是把页面 SVG 光栅化）：SVG → Image → canvas 在部分 WebView
@@ -162,7 +162,7 @@ function drawShareCard(r, clamp) {
 
   g.textAlign = 'center';
   g.font = CF(600, 13); g.fillStyle = GOLD;
-  g.fillText('haomajixiong.pages.dev', cx, 874);
+  g.fillText('laicai.us.ci', cx, 874);
   g.font = CF(400, 10.5); g.fillStyle = '#8b83a0';
   g.fillText('传统民俗数理 · 文化娱乐参考 · 不构成任何决策建议', cx, 893);
   return cv;
@@ -350,7 +350,7 @@ export function drawCompareCard(list, verdict, clamp) {
 
   g.textAlign = 'center';
   g.font = CF(600, 13); g.fillStyle = '#d9b877';
-  g.fillText('haomajixiong.pages.dev', cx, CMP_H - 40);
+  g.fillText('laicai.us.ci', cx, CMP_H - 40);
   g.font = CF(400, 10.5); g.fillStyle = '#8b83a0';
   g.fillText('传统民俗数理 · 文化娱乐参考', cx, CMP_H - 18);
   return cv;
