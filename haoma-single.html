@@ -1,0 +1,2969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0a10">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="号码玄机">
+<meta name="format-detection" content="telephone=no">
+<title>号码玄机 · 手机号码吉凶测算</title>
+<meta name="description" content="输入手机号，以 81 数理、八星数字磁场、河图五行与号码形态四轴测算吉凶，输出五维画像与化解建议。纯前端本地计算，号码不上传。">
+<link rel="canonical" href="https://laicai.us.ci/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="号码玄机">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:url" content="https://laicai.us.ci/">
+<meta property="og:title" content="号码玄机 · 手机号码吉凶测算">
+<meta property="og:description" content="81 数理 × 八星磁场 × 河图五行 × 号码形态，四轴合参，一键出盘。号码只在本机计算，不上传。">
+<meta property="og:image" content="https://laicai.us.ci/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="号码玄机 · 手机号码吉凶测算（四轴合参与五维画像）">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="号码玄机 · 手机号码吉凶测算">
+<meta name="twitter:description" content="81 数理 × 八星磁场 × 河图五行 × 号码形态，四轴合参，一键出盘。">
+<meta name="twitter:image" content="https://laicai.us.ci/og.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☯︎</text></svg>">
+<style>
+/* style.css · 号码玄机（与 app.js 实际输出的类名一一对齐） */
+:root{
+  --bg:#0b0a10; --bg2:#12101a; --card:#15121d; --card2:#1c1826; --card3:#221d2e;
+  --line:#2c2537; --line2:#3a3048;
+  --gold:#d9b877; --gold2:#f4e0b0; --goldd:#8d7440;
+  --cinnabar:#c4503f; --cinnabar2:#e2705c;
+  --txt:#ece7dd; --dim:#9b93a8; --dim2:#8b83a0;
+  --good:#63d392; --neu:#d9b877; --bad:#ea6f62;
+  --r:16px; --rs:11px;
+  --ff:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --ffs:"Songti SC","STSong","Noto Serif SC",serif;
+  --ffm:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+/* 作者样式（如 .cast{display:flex}）会压过 UA 的 [hidden]，必须显式兜底 */
+[hidden]{display:none!important}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--txt); font-family:var(--ff);
+  font-size:15px; line-height:1.7; letter-spacing:.01em;
+  min-height:100vh; overflow-x:hidden;
+  padding:0 0 calc(20px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+}
+b,strong{font-weight:650}
+
+/* ---------- 背景罗盘 ---------- */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-glow{position:absolute;inset:-20%;
+  background:
+    radial-gradient(46% 34% at 50% 4%, rgba(217,184,119,.13), transparent 70%),
+    radial-gradient(40% 30% at 88% 62%, rgba(196,80,63,.09), transparent 70%),
+    radial-gradient(44% 34% at 8% 84%, rgba(90,70,150,.10), transparent 70%);}
+.bg-luopan{position:absolute;top:-160px;left:50%;width:660px;height:660px;
+  transform:translateX(-50%);opacity:.13}
+.bg-luopan circle{fill:none;stroke:var(--gold);stroke-width:.7}
+.bg-luopan line{stroke:var(--gold);stroke-width:.7;opacity:.6}
+
+/* ---------- 头部 ---------- */
+.top{position:relative;z-index:1;text-align:center;padding:34px 16px 20px}
+.mark{font-size:38px;line-height:1;color:var(--gold);
+  text-shadow:0 0 24px rgba(217,184,119,.5);display:inline-block}
+.top h1{margin:10px 0 0;font-family:var(--ffs);font-size:29px;font-weight:700;
+  letter-spacing:.18em;color:var(--gold2);text-shadow:0 2px 20px rgba(217,184,119,.28)}
+.top .tag{margin:7px 0 0;font-size:11.5px;color:var(--dim);letter-spacing:.26em}
+
+main{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:0 14px}
+
+/* ---------- 卡片 ---------- */
+.card{position:relative;background:linear-gradient(180deg,var(--card),var(--bg2));
+  border:1px solid var(--line);border-radius:var(--r);
+  padding:18px 16px 20px;margin-bottom:14px;
+  box-shadow:0 8px 30px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.03)}
+.card-h{display:flex;align-items:center;gap:9px;margin-bottom:15px;
+  padding-bottom:12px;border-bottom:1px solid var(--line)}
+.card-h h2{margin:0;font-family:var(--ffs);font-size:17px;font-weight:600;letter-spacing:.09em;flex:1}
+.card-h .hint{font-size:11px;color:var(--dim2);letter-spacing:.05em}
+.ci{width:23px;height:23px;flex:0 0 23px;border-radius:50%;
+  background:linear-gradient(150deg,var(--gold),var(--goldd));color:#1a1408;
+  font-family:var(--ffs);font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 12px rgba(217,184,119,.3)}
+.link-btn{background:none;border:0;color:var(--dim2);font-size:11.5px;
+  font-family:var(--ff);cursor:pointer;padding:11px 10px;margin:-9px -4px -9px 0}
+.link-btn:active{color:var(--cinnabar2)}
+
+/* ---------- 输入 ---------- */
+.slots{display:flex;justify-content:center;gap:4px;margin:2px 0 14px}
+.slot{width:26px;height:38px;border-radius:6px;background:var(--card2);
+  border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
+  font-family:var(--ffm);font-size:18px;font-weight:600;color:var(--gold2);
+  transition:border-color .18s,background .18s}
+.slot.gap{margin-right:8px}
+.slot.on{border-color:rgba(217,184,119,.45);background:rgba(217,184,119,.07)}
+.slot.next{border-color:var(--gold);box-shadow:0 0 0 3px rgba(217,184,119,.1)}
+.slot.next::after{content:'';width:1px;height:18px;background:var(--gold);opacity:.75}
+
+.phone-in{display:block;width:100%;padding:13px 15px;border-radius:var(--rs);
+  background:#0d0b13;border:1px solid var(--line2);color:var(--txt);
+  font-family:var(--ffm);font-size:19px;letter-spacing:.1em;text-align:center;
+  outline:none;transition:border-color .18s}
+.phone-in:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(217,184,119,.1)}
+.phone-in::placeholder{color:var(--dim2);font-family:var(--ff);font-size:14px;letter-spacing:.02em}
+
+.meta-row{display:flex;gap:8px;justify-content:center;margin-top:11px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;font-size:11.5px;padding:4px 11px;
+  border-radius:99px;border:1px solid rgba(217,184,119,.3);color:var(--gold);
+  background:rgba(217,184,119,.07);letter-spacing:.04em}
+.chip.ghost{border-color:var(--line);color:var(--dim2);background:none}
+
+.err{display:none;margin:11px 0 0;padding:9px 12px;border-radius:9px;font-size:12.5px;
+  background:rgba(234,111,98,.1);border:1px solid rgba(234,111,98,.32);color:#f0a49a;text-align:center}
+.err.on{display:block}
+.tip{margin:13px 0 0;font-size:11px;color:var(--dim2);line-height:1.65;text-align:center}
+
+.btn-main{display:block;width:100%;margin-top:15px;padding:15px;border:0;border-radius:var(--rs);
+  background:linear-gradient(135deg,#e6c88a,var(--gold) 42%,#a9853f);color:#1c1508;
+  font-family:var(--ffs);font-size:17px;font-weight:700;letter-spacing:.24em;cursor:pointer;
+  box-shadow:0 6px 22px rgba(217,184,119,.22);transition:transform .1s,opacity .2s}
+.btn-main:active{transform:translateY(1px) scale(.995)}
+.btn-main:disabled{opacity:.55;cursor:default}
+.btn-main.loading span::after{content:' …';letter-spacing:0}
+.btn-row{display:flex;gap:9px;margin-top:10px}
+.btn-sub{flex:1;padding:11px 8px;border-radius:var(--rs);background:var(--card2);
+  border:1px solid var(--line2);color:var(--dim);font-family:var(--ff);font-size:12.5px;
+  letter-spacing:.06em;cursor:pointer;transition:border-color .18s,color .18s}
+.btn-sub:active{border-color:var(--gold);color:var(--gold)}
+
+/* ---------- 起盘 ---------- */
+.cast{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;
+  gap:20px;padding:44px 0 52px}
+.cast-ring{position:relative;width:132px;height:132px;display:flex;
+  align-items:center;justify-content:center}
+.cast-bagua{position:absolute;inset:0;animation:rot 9s linear infinite}
+.cast-bagua i{position:absolute;left:50%;top:50%;font-size:17px;color:var(--gold);
+  font-style:normal;opacity:.85;text-shadow:0 0 10px rgba(217,184,119,.6);
+  transform:rotate(calc(var(--i)*45deg)) translateY(-58px) rotate(calc(var(--i)*-45deg))}
+.cast-core{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:26px;color:var(--gold2);
+  background:radial-gradient(circle,rgba(217,184,119,.2),transparent 70%);
+  border:1px solid rgba(217,184,119,.4);animation:pulse 1.5s ease-in-out infinite}
+.cast-step{margin:0;font-size:13px;color:var(--gold);letter-spacing:.16em;font-family:var(--ffs)}
+@keyframes rot{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:.62}50%{opacity:1}}
+
+/* ---------- 总评 ---------- */
+.sum{display:flex;gap:16px;align-items:center}
+.sum-r{flex:1;min-width:0}
+.ring{position:relative;width:104px;height:104px;flex:0 0 104px}
+.ring svg{width:100%;height:100%;display:block}
+.ring .rbg{fill:none;stroke:var(--card3);stroke-width:8}
+.ring .rfg{fill:none;stroke-width:8;stroke-linecap:round;
+  transition:stroke-dashoffset 1s cubic-bezier(.22,1,.36,1)}
+.ring.good .rfg{stroke:var(--good);filter:drop-shadow(0 0 6px rgba(99,211,146,.45))}
+.ring.neu  .rfg{stroke:var(--gold);filter:drop-shadow(0 0 6px rgba(217,184,119,.4))}
+.ring.bad  .rfg{stroke:var(--bad);filter:drop-shadow(0 0 6px rgba(234,111,98,.4))}
+.ring .rv{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;line-height:1}
+.ring .rv{font-family:var(--ffm);font-size:31px;font-weight:700;letter-spacing:-.02em}
+.ring.good .rv{color:var(--good)} .ring.neu .rv{color:var(--gold2)} .ring.bad .rv{color:var(--bad)}
+.ring .rv small{display:block;font-family:var(--ff);font-size:11px;font-weight:400;
+  color:var(--dim2);letter-spacing:.22em;margin-top:5px}
+
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.badge{font-size:11px;padding:3.5px 10px;border-radius:99px;letter-spacing:.06em;
+  border:1px solid var(--line2);color:var(--dim);background:var(--card2);white-space:nowrap}
+.badge.good{border-color:rgba(99,211,146,.4);color:var(--good);background:rgba(99,211,146,.09)}
+.badge.neu{border-color:rgba(217,184,119,.42);color:var(--gold);background:rgba(217,184,119,.09)}
+.badge.bad{border-color:rgba(234,111,98,.42);color:var(--bad);background:rgba(234,111,98,.09)}
+
+.phone-big{margin:0 0 9px;font-family:var(--ffm);font-size:21px;font-weight:600;
+  letter-spacing:.06em;color:var(--gold2)}
+.verdict{margin:0;font-size:13px;color:var(--txt);line-height:1.72}
+.verdict.sub2{margin-top:6px;color:var(--dim);font-size:12.5px}
+
+.axes{margin-top:18px;padding-top:15px;border-top:1px solid var(--line);
+  display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.ax{}
+.ax-h{display:flex;align-items:baseline;gap:6px;font-size:11.5px;color:var(--dim);margin-bottom:5px}
+.ax-h span{flex:1;letter-spacing:.04em}
+.ax-h b{font-family:var(--ffm);font-size:15px;font-weight:700;color:var(--gold2)}
+.ax-h i{font-style:normal;font-size:11px;color:var(--dim2)}
+.bar{height:6px;border-radius:3px;background:var(--card3);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--goldd),var(--gold));
+  transition:width .9s cubic-bezier(.22,1,.36,1)}
+.bar i.good{background:linear-gradient(90deg,#2e8f5c,var(--good))}
+.bar i.bad{background:linear-gradient(90deg,#96402f,var(--bad))}
+
+.acts{display:flex;gap:8px;margin-top:17px}
+#copy-tip{margin-top:10px;color:var(--gold)}
+
+/* ---------- 五维雷达 ---------- */
+.radar-wrap{display:flex;justify-content:center;margin:2px 0 16px}
+.radar{width:100%;max-width:250px;height:auto;overflow:visible}
+.radar .rgrid{fill:none;stroke:var(--line);stroke-width:.8}
+.radar .raxis{stroke:var(--line);stroke-width:.8}
+.radar .rdata{fill:rgba(217,184,119,.19);stroke:var(--gold);stroke-width:1.8;
+  stroke-linejoin:round;filter:drop-shadow(0 0 8px rgba(217,184,119,.3))}
+.radar circle{fill:var(--gold2)}
+.radar text{fill:var(--dim);font-size:11px;font-family:var(--ff);letter-spacing:.02em}
+
+.dim{padding:13px 0;border-bottom:1px dashed var(--line)}
+.dim:last-child{border-bottom:0;padding-bottom:2px}
+.dim-h{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.dn{font-size:14px;font-weight:600;letter-spacing:.1em;color:var(--gold2);flex:1}
+.dv{font-family:var(--ffm);font-size:17px;font-weight:700;color:var(--dim)}
+.dv.good{color:var(--good)} .dv.bad{color:var(--bad)}
+.dim-t{margin:9px 0 0;font-size:12.5px;color:var(--dim);line-height:1.78}
+
+/* ---------- 81 数理 ---------- */
+.shuli{display:flex;gap:15px;align-items:flex-start}
+.sl-n{width:74px;height:74px;flex:0 0 74px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--ffm);font-size:32px;font-weight:700;
+  border:1px solid var(--line2);background:var(--card2);color:var(--gold2)}
+.sl-n.good{border-color:rgba(99,211,146,.45);color:var(--good);
+  background:rgba(99,211,146,.08);box-shadow:0 0 20px rgba(99,211,146,.14)}
+.sl-n.neu{border-color:rgba(217,184,119,.45);color:var(--gold2);
+  background:rgba(217,184,119,.08);box-shadow:0 0 20px rgba(217,184,119,.14)}
+.sl-n.bad{border-color:rgba(234,111,98,.45);color:var(--bad);
+  background:rgba(234,111,98,.08);box-shadow:0 0 20px rgba(234,111,98,.14)}
+.sl-r{flex:1;min-width:0}
+.sl-name{margin:0 0 6px;font-family:var(--ffs);font-size:19px;font-weight:600;
+  letter-spacing:.06em;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.lv{font-size:11px;padding:2.5px 9px;border-radius:99px;font-family:var(--ff);
+  letter-spacing:.1em;border:1px solid var(--line2);color:var(--dim)}
+.lv.good{border-color:rgba(99,211,146,.4);color:var(--good);background:rgba(99,211,146,.08)}
+.lv.neu{border-color:rgba(217,184,119,.4);color:var(--gold);background:rgba(217,184,119,.08)}
+.lv.bad{border-color:rgba(234,111,98,.4);color:var(--bad);background:rgba(234,111,98,.08)}
+.sl-s{margin:0 0 9px;font-size:12px;color:var(--txt);line-height:1.7}
+.sl-calc{margin:0;font-size:11px;color:var(--dim2);line-height:1.7;
+  padding:9px 11px;background:var(--card2);border-radius:9px;border:1px solid var(--line)}
+.sl-calc b{color:var(--gold);font-family:var(--ffm)}
+
+/* ---------- 通用引导文案 ---------- */
+.lead{margin:0 0 14px;font-size:12.5px;color:var(--dim);line-height:1.75;
+  padding:10px 12px;background:rgba(217,184,119,.045);border-left:2px solid rgba(217,184,119,.4);
+  border-radius:0 8px 8px 0}
+.warn{color:#eeb3a4!important}
+
+/* ---------- 八星磁场 ---------- */
+.pairs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:15px}
+.pc{background:var(--card2);border:1px solid var(--line);border-left:3px solid var(--line2);
+  border-radius:9px;padding:9px 4px 8px;text-align:center;display:flex;
+  flex-direction:column;gap:2px;align-items:center}
+.pc.good{border-left-color:var(--good)}
+.pc.bad{border-left-color:var(--bad)}
+.pc.neu{border-left-color:var(--dim2)}
+.pc-p{font-family:var(--ffm);font-size:17px;font-weight:700;color:var(--gold2);letter-spacing:.06em;line-height:1.2}
+.pc-n{font-size:11px;color:var(--txt);letter-spacing:.08em;font-family:var(--ffs)}
+.pc-w{font-size:11px;color:var(--dim2)}
+
+.mag{background:var(--card2);border:1px solid var(--line);border-radius:var(--rs);
+  padding:13px 14px;margin-bottom:9px}
+.mag.good{border-left:3px solid var(--good)}
+.mag.bad{border-left:3px solid var(--bad)}
+.mag.neu{border-left:3px solid var(--dim2)}
+.mag-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.mag-pair{font-family:var(--ffm);font-size:21px;font-weight:700;color:var(--gold2);letter-spacing:.06em}
+.mag-name{font-family:var(--ffs);font-size:15px;color:var(--txt);letter-spacing:.06em}
+.mag-tag{font-size:11px;padding:2px 8px;border-radius:99px;letter-spacing:.08em;flex:0 0 auto}
+.mag-tag.good{background:rgba(99,211,146,.14);color:var(--good);border:1px solid rgba(99,211,146,.3)}
+.mag-tag.bad{background:rgba(234,111,98,.14);color:var(--bad);border:1px solid rgba(234,111,98,.3)}
+.mag-tag.neu{background:rgba(155,147,168,.12);color:var(--dim);border:1px solid var(--line2)}
+.mag-pos{font-size:11px;color:var(--dim2);margin-left:auto;white-space:nowrap}
+
+.mods{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.mod{font-size:11px;padding:2.5px 8px;border-radius:5px;border:1px solid var(--line2);
+  color:var(--dim);background:rgba(0,0,0,.2);letter-spacing:.03em;font-family:var(--ffm)}
+.mod.mt{border-color:rgba(217,184,119,.32);color:var(--gold)}
+.mod.m5{border-color:rgba(217,184,119,.5);color:var(--gold2);background:rgba(217,184,119,.12)}
+.mod.m0{border-color:rgba(155,147,168,.42);color:#b3aabe;background:rgba(120,110,140,.12)}
+
+.mag-d{margin:0 0 9px;font-size:12px;color:var(--txt);line-height:1.75}
+.mag-gb{margin:0 0 6px;font-size:12px;color:var(--dim);line-height:1.7;
+  padding-left:10px;border-left:2px solid var(--line2)}
+.mag-gb b{color:var(--gold);font-weight:600;font-size:11.5px;letter-spacing:.06em}
+.mag-gb.warn{border-left-color:rgba(234,111,98,.45);color:#d8a79c}
+
+/* ---------- 五行 ---------- */
+/* 11 个色块必须单行：用 flex 等分而非固定宽度（固定宽会在 328px 内容宽度下折行成 10+1） */
+.digits{display:flex;gap:3px;margin-bottom:16px}
+.dg{flex:1 1 0;min-width:0;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--ffm);font-size:15px;font-weight:600;border:1px solid}
+.dg.水{color:#7fc0ee;border-color:rgba(76,143,214,.5);background:rgba(76,143,214,.13)}
+.dg.火{color:#ef9b96;border-color:rgba(217,83,79,.5);background:rgba(217,83,79,.13)}
+.dg.木{color:#8fd694;border-color:rgba(92,184,92,.5);background:rgba(92,184,92,.13)}
+.dg.金{color:#f0d98a;border-color:rgba(224,192,104,.5);background:rgba(224,192,104,.13)}
+.dg.土{color:#cfa877;border-color:rgba(176,138,90,.5);background:rgba(176,138,90,.13)}
+
+.wx-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px 14px;margin-bottom:16px}
+/* 五行有 5 项，2 列布局会剩一个落单 → 末项跨双列填满 */
+.wx:last-child:nth-child(odd){grid-column:span 2}
+.wx{position:relative;padding:9px 11px;border-radius:10px;background:var(--card2);
+  border:1px solid var(--line)}
+.wx-h{display:flex;align-items:baseline;gap:7px;margin-bottom:6px}
+.wx-h span{font-family:var(--ffs);font-size:14px;font-weight:600}
+.wx-h b{font-family:var(--ffm);font-size:15px;color:var(--gold2);margin-left:auto}
+.wx-h i{font-style:normal;font-size:11px;color:var(--dim2);font-family:var(--ffm)}
+.wx.miss{border-style:dashed;border-color:rgba(234,111,98,.4);background:rgba(234,111,98,.05)}
+.wx.miss .wx-h span,.wx.miss .wx-h b{color:var(--bad);opacity:.75}
+.wx em{position:absolute;top:8px;right:9px;font-style:normal;font-size:11px;
+  color:var(--bad);border:1px solid rgba(234,111,98,.4);border-radius:4px;padding:0 4px}
+.wx.木 .wx-h span{color:#8fd694} .wx.火 .wx-h span{color:#ef9b96}
+.wx.土 .wx-h span{color:#cfa877} .wx.金 .wx-h span{color:#f0d98a}
+.wx.水 .wx-h span{color:#7fc0ee}
+.wx.木 .bar i{background:#5cb85c} .wx.火 .bar i{background:#d9534f}
+.wx.土 .bar i{background:#b08a5a} .wx.金 .bar i{background:#e0c068}
+.wx.水 .bar i{background:#4c8fd6}
+
+.wx-sum{border-top:1px solid var(--line);padding-top:14px}
+.wx-sum p{margin:0 0 9px;font-size:12.5px;color:var(--dim);line-height:1.72}
+.wx-sum p:last-child{margin-bottom:0}
+.wx-sum b{color:var(--gold);font-size:11.5px;letter-spacing:.07em;font-weight:600}
+.wx-sum .flow{margin-top:12px;padding:10px 12px;border-radius:9px;background:var(--card2);
+  border:1px solid var(--line);font-size:12px}
+.wx-sum .flow.good{border-color:rgba(99,211,146,.32);background:rgba(99,211,146,.07)}
+.wx-sum .flow.good b{color:var(--good)}
+.wx-sum .flow.bad{border-color:rgba(234,111,98,.32);background:rgba(234,111,98,.07)}
+.wx-sum .flow.bad b{color:var(--bad)}
+
+/* ---------- 形态 / 建议 ---------- */
+.feat{position:relative;padding:11px 13px 12px 15px;border-radius:10px;
+  background:var(--card2);border:1px solid var(--line);margin-bottom:9px}
+.feat::before{content:'';position:absolute;left:0;top:11px;bottom:11px;width:3px;
+  border-radius:2px;background:var(--dim2)}
+.feat.good::before{background:var(--good)}
+.feat.bad::before{background:var(--bad)}
+.feat.neutral::before{background:var(--dim2)}
+.feat-h{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--txt);margin-bottom:5px}
+.feat-h .dot{width:6px;height:6px;border-radius:50%;background:var(--dim2);flex:0 0 6px}
+.feat.good .feat-h{color:var(--good)} .feat.good .feat-h .dot{background:var(--good)}
+.feat.bad .feat-h{color:var(--bad)} .feat.bad .feat-h .dot{background:var(--bad)}
+.feat p{margin:0;font-size:12px;color:var(--dim);line-height:1.72}
+
+.adv{padding:12px 13px;border-radius:10px;margin-bottom:9px;
+  background:rgba(217,184,119,.05);border:1px solid rgba(217,184,119,.2)}
+.adv-h{font-size:13px;font-weight:650;color:var(--gold2);margin-bottom:6px;letter-spacing:.02em}
+.adv p{margin:0;font-size:12px;color:var(--dim);line-height:1.78}
+
+/* ---------- 历史 ---------- */
+.hrow{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;
+  background:var(--card2);border:1px solid var(--line);margin-bottom:8px;cursor:pointer;
+  transition:border-color .18s}
+.hrow:active{border-color:var(--gold)}
+.hi{flex:1;min-width:0}
+.hi b{display:block;font-family:var(--ffm);font-size:13.5px;color:var(--txt);
+  letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hi i{font-style:normal;font-size:11px;color:var(--dim2);font-family:var(--ffm)}
+.hr{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.hs{font-family:var(--ffm);font-size:19px;font-weight:700;color:var(--gold2);line-height:1}
+.hg{font-size:11px;padding:3px 8px;border-radius:5px;border:1px solid var(--line2);
+  color:var(--dim);white-space:nowrap}
+.hg.good{color:var(--good);border-color:rgba(99,211,146,.4);background:rgba(99,211,146,.08)}
+.hg.bad{color:var(--bad);border-color:rgba(234,111,98,.4);background:rgba(234,111,98,.08)}
+
+/* ---------- 关于 / 页脚 ---------- */
+.dim-card .about p{margin:0 0 11px;font-size:12.5px;color:var(--dim);line-height:1.8}
+.dim-card .about p:last-child{margin-bottom:0}
+.dim-card .about b{color:var(--gold);font-weight:600}
+.dim-card .about .w{margin-top:13px;padding-top:12px;border-top:1px solid var(--line);
+  color:var(--gold);font-size:12px;letter-spacing:.03em}
+
+footer{position:relative;z-index:1;max-width:660px;margin:26px auto 0;padding:0 22px;
+  text-align:center;font-size:11px;color:var(--dim2);line-height:1.85}
+footer p{margin:0 0 7px}
+footer b{color:var(--dim);font-weight:600}
+footer .cr{margin-top:11px;padding-top:11px;border-top:1px solid var(--line);
+  letter-spacing:.1em}
+
+/* ---------- 响应式 ---------- */
+@media (max-width:360px){
+  .slot{width:23px;height:35px;font-size:16px}
+  .wx-grid{grid-template-columns:1fr}
+  .sum{flex-direction:column;align-items:center;text-align:center}
+  .sum-r{width:100%}
+  .badges{justify-content:center}
+}
+@media (min-width:700px){
+  main{max-width:720px}
+  .wx-grid{grid-template-columns:repeat(3,1fr)}
+  .wx:last-child:nth-child(odd){grid-column:auto}
+  .pairs{grid-template-columns:repeat(4,1fr)}
+  .card{padding:22px 22px 24px}
+  .radar-wrap{max-width:340px;margin:0 auto}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+
+/* ---------- 分享图弹层 ---------- */
+.modal{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;
+  padding:18px;flex-direction:column;gap:12px}
+.modal.on{display:flex}
+.modal-bg{position:absolute;inset:0;background:rgba(4,3,8,.9)}
+.modal-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:12px;
+  max-width:100%;max-height:100%;overflow:auto;-webkit-overflow-scrolling:touch}
+.modal-inner img{width:auto;max-width:100%;max-height:70vh;border-radius:14px;
+  border:1px solid var(--line);box-shadow:0 18px 50px rgba(0,0,0,.6)}
+.modal-hint{margin:0;font-size:12.5px;color:var(--gold);letter-spacing:.06em}
+.modal-inner .btn-sub{flex:0 0 auto;padding:11px 34px}
+
+/* ---------- 多号对比 ---------- */
+.has-dock{padding-bottom:96px}
+.cmp-dock{position:fixed;left:0;right:0;bottom:0;z-index:150;display:none;
+  padding:10px 14px calc(12px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,rgba(16,14,23,.5),rgba(11,10,16,.98) 40%);
+  border-top:1px solid var(--line);backdrop-filter:blur(10px)}
+.cmp-dock.on{display:flex;align-items:center;gap:10px}
+.cmp-chips{flex:1;display:flex;gap:7px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;padding:2px 0}
+.cmp-chips::-webkit-scrollbar{display:none}
+.cmp-chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:6px 8px 6px 11px;
+  border-radius:99px;background:var(--card2);border:1px solid var(--line2)}
+.cmp-chip b{font-family:var(--ffm);font-size:12px;color:var(--txt);letter-spacing:.02em;font-weight:600}
+.cmp-chip i{font-style:normal;font-family:var(--ffm);font-size:12px;color:var(--gold)}
+.cmp-x{font-style:normal;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(255,255,255,.08);color:var(--dim);font-size:12px;cursor:pointer;line-height:1}
+.cmp-x:active{background:rgba(234,111,98,.3);color:#fff}
+.cmp-ops{display:flex;gap:7px;flex:0 0 auto}
+.cmp-btn{padding:9px 16px;border-radius:9px;border:0;cursor:pointer;font-family:var(--ff);
+  font-size:13px;font-weight:600;letter-spacing:.06em;
+  background:linear-gradient(135deg,#e6c88a,var(--gold) 42%,#a9853f);color:#1c1508}
+.cmp-btn.ghost{background:var(--card2);border:1px solid var(--line2);color:var(--dim)}
+.cmp-inner{width:100%;max-width:640px}
+.cmp-title{margin:0 0 12px;font-family:var(--ffs);font-size:17px;font-weight:600;
+  letter-spacing:.1em;color:var(--gold2);text-align:center}
+.cmp-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);
+  border-radius:12px;background:var(--card)}
+.cmp-table{width:100%;border-collapse:collapse;font-size:12px}
+.cmp-table th,.cmp-table td{padding:8px 6px;text-align:center;white-space:nowrap;
+  border-bottom:1px solid var(--line)}
+.cmp-table tbody tr:last-child th,.cmp-table tbody tr:last-child td{border-bottom:0}
+.cmp-table .cmp-lb{position:sticky;left:0;z-index:2;text-align:left;padding-left:11px;
+  font-weight:400;color:var(--dim);background:var(--card);min-width:74px;font-size:11.5px}
+.cmp-table thead th{background:var(--card2);position:sticky;top:0;z-index:1;padding:9px 6px}
+.cmp-table thead .cmp-lb{background:var(--card2);z-index:3}
+.cmp-h-num{display:block;font-family:var(--ffm);font-size:12.5px;color:var(--gold2);
+  font-weight:600;letter-spacing:.02em;margin-bottom:3px}
+.cmp-h-x{font-style:normal;display:inline-grid;place-items:center;width:18px;height:18px;
+  border-radius:50%;background:rgba(255,255,255,.08);color:var(--dim);font-size:12px;cursor:pointer}
+.cmp-h-x:active{background:rgba(234,111,98,.3);color:#fff}
+.cmp-table td{font-family:var(--ffm);color:var(--txt)}
+.cmp-table td.big{font-size:17px;font-weight:700;color:var(--gold2)}
+.cmp-table td.best{color:var(--good);font-weight:700;
+  background:rgba(99,211,146,.09);box-shadow:inset 0 0 0 1px rgba(99,211,146,.18)}
+.cmp-table td.worst{color:var(--bad);background:rgba(234,111,98,.07)}
+.cmp-sep th{padding:7px 11px !important;text-align:left !important;font-size:10.5px;
+  letter-spacing:.16em;color:var(--gold);background:rgba(217,184,119,.07) !important;
+  border-bottom:1px solid var(--line)}
+.cmp-sum{margin-top:13px;padding:12px 13px;border-radius:10px;
+  background:rgba(217,184,119,.055);border:1px solid rgba(217,184,119,.2)}
+.cmp-verdict{margin:0 0 6px;font-size:12.5px;line-height:1.75;color:var(--txt)}
+.cmp-verdict.sub{color:var(--dim)}
+.cmp-note{margin:9px 0 0;padding-top:9px;border-top:1px dashed var(--line);
+  font-size:11px;line-height:1.7;color:var(--dim2)}
+.hrow-cmp{font-style:normal;flex:0 0 auto;width:22px;height:22px;border-radius:50%;
+  display:grid;place-items:center;font-size:12px;cursor:pointer;
+  border:1px solid var(--line2);color:var(--dim);background:var(--card2)}
+.hrow-cmp.on{border-color:rgba(99,211,146,.45);color:var(--good);background:rgba(99,211,146,.12)}
+#toast{position:fixed;left:50%;bottom:104px;transform:translateX(-50%) translateY(12px);
+  opacity:0;pointer-events:none;z-index:300;max-width:84vw;text-align:center;
+  padding:9px 17px;border-radius:99px;font-size:12.5px;letter-spacing:.03em;
+  background:rgba(24,22,33,.97);border:1px solid rgba(217,184,119,.4);color:var(--gold2);
+  transition:opacity .22s,transform .22s}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.has-dock #toast{bottom:112px}
+
+/* ---------- 选号推荐 ---------- */
+.rec-opts{margin:4px 0 2px}
+.rec-row{display:flex;align-items:flex-start;gap:9px;margin:9px 0}
+.rl{flex:0 0 30px;font-size:11px;letter-spacing:.14em;color:var(--dim2);padding-top:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:5px 12px;border-radius:99px;border:1px solid var(--line2);background:var(--card2);
+  color:var(--dim);font-size:11.5px;cursor:pointer;font-family:var(--ff);letter-spacing:.04em;
+  transition:border-color .15s,color .15s}
+.chip.on{border-color:rgba(217,184,119,.55);color:var(--gold);background:rgba(217,184,119,.1)}
+.chip:active{transform:translateY(1px)}
+.rec-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:13px}
+@media (min-width:480px){.rec-grid{grid-template-columns:1fr 1fr}}
+.rec-card{border:1px solid var(--line);border-radius:12px;padding:12px 12px 11px;background:var(--card2)}
+.rec-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.rec-num{font-family:var(--ffm);font-size:16.5px;font-weight:700;color:var(--gold2);letter-spacing:.02em}
+.rec-score{font-family:var(--ffm);font-size:12px;font-weight:700;padding:3px 9px;border-radius:7px}
+.rec-score.good{color:var(--good);background:rgba(99,211,146,.12)}
+.rec-score.bad{color:var(--bad);background:rgba(234,111,98,.12)}
+.rec-score:not(.good):not(.bad){color:var(--gold);background:rgba(217,184,119,.12)}
+.rec-delta{display:flex;gap:7px;margin:8px 0 9px;flex-wrap:wrap}
+.rec-delta span{font-size:10.5px;padding:3px 8px;border-radius:6px;font-family:var(--ffm)}
+.rec-delta .up{color:var(--good);background:rgba(99,211,146,.1)}
+.rec-delta .down{color:var(--bad);background:rgba(234,111,98,.1)}
+.rec-reasons{list-style:none;margin:0;padding:0}
+.rec-reasons li{display:flex;gap:7px;margin:4px 0;font-size:11.5px;line-height:1.6;color:var(--txt)}
+.rec-reasons i{flex:0 0 auto;font-style:normal;font-size:10px;color:var(--gold);
+  border:1px solid rgba(217,184,119,.3);border-radius:4px;padding:1px 6px;height:fit-content;margin-top:1px}
+.rec-reasons span{color:var(--dim)}
+.rec-acts{display:flex;gap:8px;margin-top:10px}
+.btn-mini{flex:1;padding:8px 10px;border-radius:8px;border:0;cursor:pointer;font-family:var(--ff);
+  font-size:12px;font-weight:600;letter-spacing:.06em;
+  background:linear-gradient(135deg,#e6c88a,var(--gold) 42%,#a9853f);color:#1c1508}
+.btn-mini.ghost{background:var(--card);border:1px solid var(--line2);color:var(--dim);font-weight:400}
+
+/* ---------- FAQ ---------- */
+details.faq{margin:18px 0}
+details.faq summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;
+  font-family:var(--ffs);font-size:14px;font-weight:600;letter-spacing:.06em;color:var(--gold2)}
+details.faq summary::-webkit-details-marker{display:none}
+details.faq summary::before{content:'▸';color:var(--gold);transition:transform .15s;display:inline-block}
+details.faq[open] summary::before{transform:rotate(90deg)}
+.faq-b{margin-top:10px;border-top:1px solid var(--line);padding-top:11px}
+.faq-b p{margin:0 0 9px;font-size:12px;line-height:1.8;color:var(--dim)}
+.faq-b p b{color:var(--txt);font-weight:600}
+.faq-b p:last-child{margin-bottom:0}
+
+/* ---------- 推荐方案 ---------- */
+.plan-bar{display:flex;gap:8px;margin-top:12px}
+#plan-list{margin-top:10px}
+#plan-list .lead{font-size:12px;color:var(--dim);line-height:1.7}
+.plan-row{border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden;background:var(--card)}
+.plan-h{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;flex-wrap:wrap}
+.plan-h b{font-family:var(--ffm);font-size:13.5px;color:var(--gold2)}
+.plan-h i{font-style:normal;font-size:11px;color:var(--dim2)}
+.plan-tags{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto}
+.plan-tags em{font-style:normal;font-size:10px;padding:2px 7px;border-radius:99px;
+  border:1px solid rgba(217,184,119,.28);color:var(--gold);background:rgba(217,184,119,.08)}
+.plan-items{border-top:1px solid var(--line);padding:8px 12px 10px}
+.plan-it{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px}
+.plan-it b{font-family:var(--ffm);font-size:12.5px;color:var(--txt)}
+.plan-it .hs{font-weight:700;color:var(--gold2)}
+.plan-it .up,.plan-it .down{font-size:10.5px;padding:1px 6px;border-radius:5px}
+.plan-acts{margin-left:auto;display:flex;gap:6px}
+.plan-ops{display:flex;gap:8px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+
+/* ---------- 主屏 App 化（black-translucent 状态栏融合） ---------- */
+/* 浏览器里 env=0，观感不变；从主屏 standalone 打开时补出刘海/灵动岛的高度 */
+main{padding-top:env(safe-area-inset-top)}
+footer{padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true">
+  <div class="bg-glow"></div>
+  <svg class="bg-luopan" viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="188"/><circle cx="200" cy="200" r="152"/>
+    <circle cx="200" cy="200" r="112"/><circle cx="200" cy="200" r="72"/>
+    <g class="ticks" id="bgTicks"></g>
+  </svg>
+</div>
+
+<header class="top">
+  <div class="mark">☯︎</div>
+  <h1>号码玄机</h1>
+  <p class="tag">手机号码吉凶 · 四轴合参</p>
+</header>
+
+<main>
+
+  <section class="card" id="card-input">
+    <div class="card-h"><span class="ci">壹</span><h2>报上号码</h2></div>
+
+    <div class="slots" id="slots" aria-hidden="true"></div>
+
+    <input id="phone" class="phone-in" type="tel" inputmode="numeric" autocomplete="tel"
+           maxlength="13" placeholder="如 138 0013 8000" aria-label="手机号码">
+
+    <div class="meta-row">
+      <span id="carrier-chip" class="chip ghost">号段待识别</span>
+      <span id="counter" class="chip ghost">0 / 11</span>
+    </div>
+
+    <p class="err" id="err"></p>
+
+    <button class="btn-main" id="go"><span>起 盘 测 算</span></button>
+
+    <div class="btn-row">
+      <button class="btn-sub" id="random">随机试一个</button>
+      <button class="btn-sub" id="clear">清空重填</button>
+    </div>
+
+    <p class="tip">号码只在本机浏览器内计算，不发送、不上传：本页零外部请求，也没有任何后端。
+      最近的测算记录<b>只保存在你自己设备的浏览器里</b>，可随时用下方「清空」抹掉。</p>
+  </section>
+
+  <section class="cast" id="cast" hidden>
+    <div class="cast-ring"><div class="cast-bagua" id="bagua"></div><div class="cast-core">☯︎</div></div>
+    <p class="cast-step" id="castStep">排数理…</p>
+  </section>
+
+  <div id="result"></div>
+
+  <section class="card" id="card-history" hidden>
+    <div class="card-h"><span class="ci">录</span><h2>本机测算记录</h2>
+      <button class="link-btn" id="hist-clear">清空</button></div>
+    <div id="hist-list"></div>
+  </section>
+
+  <section class="card dim-card" id="card-about">
+    <div class="card-h"><span class="ci">法</span><h2>测算依据</h2></div>
+    <div class="about">
+      <p><b>① 81 数理</b>　取号码后四位除以 80，余数为灵数，对照五格剖象法通行数理吉凶表（1–80）。</p>
+      <p><b>② 八星数字磁场</b>　数字能量学。去掉前 3 位号段，后 8 位两两分组得 4 组磁场：天医、延年、生气、伏位为吉星，绝命、五鬼、六煞、祸害为凶星，每星分四档强度。含 5 为强化、含 0 为空亡。越靠尾权重越大。</p>
+      <p><b>③ 河图五行</b>　1/6 属水、2/7 属火、3/8 属木、4/9 属金、5/0 属土，统计全号五行分布、缺失与相生相克流通度。</p>
+      <p><b>④ 号码形态</b>　豹子、顺子、对子、循环对、数字种类、含 4 数量、尾号寓意、收尾磁场。</p>
+      <p class="w">四轴加权：磁场 34% · 数理 26% · 形态 22% · 五行 18%。</p>
+    </div>
+  </section>
+
+</main>
+
+<details class="card faq">
+      <summary>为什么我的分数和别家测的不一样？</summary>
+      <div class="faq-b">
+        <p><b>体系不同。</b>市面号码测评大体三类：只看尾号 81 数理（五格剖象）、只看八星磁场（数字能量学）、或在两者之上再加五行 / 生肖 / 八字。本站为四轴合参——磁场 34% ＋ 数理 26% ＋ 形态 22% ＋ 五行 18%，并按通行规则对 5（强化）与 0（空亡）做修正。</p>
+        <p><b>口径不同。</b>同为数理，有的取后四位、有的取全号取模；同为磁场，有的不分权重、有的「越靠尾越重」。本站取后四位模 80，四组磁场按 1 / 1.2 / 1.5 / 2 加权——尾号定盘。</p>
+        <p><b>怎么用这个分。</b>分数只在本站内部纵向可比：比较同一个号换不同尾号谁更好。它不适合拿去和别家的分数比大小——民俗体系本无标准答案，选号看的是相对差异，不是绝对分数。</p>
+      </div>
+    </details>
+
+    <footer>
+  <p>本站内容为传统民俗数理与数字能量学说法，属<b>文化娱乐参考</b>，不构成任何医学、投资、法律或人生决策建议。</p>
+  <p>号码吉凶不改变现实因果——真正决定运势的是你的选择与行动。请勿据此消费、换号或作任何重大决定。</p>
+  <p class="cr">号码玄机 · 单文件镜像版 · 纯前端本地计算 · 无后端 · 无追踪</p>
+</footer>
+
+<script>
+/* 启动看门狗：模块加载失败也能看到提示，不留白屏 */
+window.__bootOK = false;
+setTimeout(function () {
+  if (window.__bootOK) return;
+  var e = document.getElementById('err');
+  if (e) { e.textContent = '脚本加载失败，请刷新页面重试（若仍失败请检查网络后强制刷新）。'; e.style.display = 'block'; }
+  document.getElementById('go').disabled = false;
+}, 6000);
+</script>
+<script>
+/* ======== data.js ======== */
+/* data.js · 数据与文案层（engine.js 的唯一依赖）
+   契约：NUM / SHULI / LEVEL_W / numLevel / fmtNum
+        CIGROUP / CIPAIR / CIZERO / FIVE / TAIL / CARRIER / carrierOf
+   体系说明（全部为民俗数理，非科学结论）：
+   ① 81 数理：五格剖象法通行数理吉凶，取号码后四位 mod 80
+   ② 八星数字磁场：数字能量学，去号段后 8 位两两分组，每星四档强度
+   ③ 河图五行：1/6 水、2/7 火、3/8 木、4/9 金、5/0 土
+   ④ 号码形态：豹子 / 顺子 / 对子 / 含 4 / 尾号寓意                        */
+
+/* ---------- 单字数字含义 ---------- */
+const NUM = {
+  '0': { t: '空', n: '零为归藏，主隐藏、潜能与清零' },
+  '1': { t: '始', n: '一为太极之始，主独立、开创、领导' },
+  '2': { t: '偶', n: '二为两仪，主平衡、伴侣、协作' },
+  '3': { t: '生', n: '三为三才，主生发、表达、才华' },
+  '4': { t: '定', n: '四为四象，主秩序与稳重，河图属金' },
+  '5': { t: '枢', n: '五居九宫之中，主变动、放大与枢纽' },
+  '6': { t: '顺', n: '六为六爻，主顺遂、财禄、家宅' },
+  '7': { t: '谋', n: '七为七政，主谋略、探究、内敛' },
+  '8': { t: '发', n: '八为八方，主财富、发达、扩张' },
+  '9': { t: '极', n: '九为阳数之极，主长久、尊贵、圆满' }
+};
+
+/* ---------- 权重 → 等级 ---------- */
+const LEVEL_W = { 0: '大凶', 0.2: '凶', 0.5: '半吉', 0.8: '吉', 1: '大吉' };
+const numLevel = w => LEVEL_W[w] || '中平';
+const fmtNum = n => `${n.slice(0, 3)} ${n.slice(3, 7)} ${n.slice(7)}`;
+
+/* ---------- 81 数理（索引 0–80，实际取值 1–80） ----------
+   w：1 大吉 / 0.8 吉 / 0.5 半吉 / 0.2 凶 / 0 大凶              */
+const SHULI = [
+  { n: '未定之数', s: '无根浮萍，难成气候', w: 0.2 },
+  { n: '太极之数', s: '万物开泰，一统乾坤，乃最上之数', w: 1 },
+  { n: '两仪之数', s: '混沌未开，进退保守，志望难达', w: 0.2 },
+  { n: '三才之数', s: '天地人和，凡事如意，吉运自来', w: 1 },
+  { n: '四象之数', s: '万事休止，进退不自由，孤独遭难', w: 0 },
+  { n: '五行之数', s: '循环相生，圆通自在，福禄俱全', w: 1 },
+  { n: '六爻之数', s: '安稳余庆，万宝集门，天降幸运', w: 1 },
+  { n: '刚毅之数', s: '精悍果断，独立权威，以进得成', w: 0.8 },
+  { n: '坚刚之数', s: '意志刚健，勤勉发展，排除万难', w: 0.8 },
+  { n: '大成之数', s: '兴尽凶始，虽抱才智，难以持久', w: 0 },
+  { n: '终结之数', s: '万事终局，空虚之象，乌云蔽日', w: 0 },
+  { n: '旱苗逢雨', s: '万物更新，调顺发达，稳健着实', w: 1 },
+  { n: '掘井无泉', s: '意志薄弱，无理伸张，家庭缘薄', w: 0.2 },
+  { n: '春日牡丹', s: '智略超群，学艺兼备，奏功受福', w: 1 },
+  { n: '破兆之数', s: '沦落天涯，失意烦闷，家庭缘薄', w: 0.2 },
+  { n: '福寿之数', s: '福寿圆满，富贵荣誉，涵养雅量', w: 1 },
+  { n: '厚重之数', s: '贵人得助，天乙贵人，可获大功', w: 1 },
+  { n: '刚强之数', s: '突破万难，权威刚强，有贵人助', w: 0.8 },
+  { n: '铁镜重磨', s: '权威显达，博得名利，且养柔德', w: 0.8 },
+  { n: '多难之数', s: '风云蔽日，虽有智谋，内外不和', w: 0 },
+  { n: '屋下藏金', s: '非业破运，灾祸重重，进退维谷', w: 0 },
+  { n: '明月中天', s: '独立权威，光风霁月，首领格也', w: 1 },
+  { n: '秋草逢霜', s: '怀才不遇，志气薄弱，百事不如意', w: 0.2 },
+  { n: '旭日东升', s: '壮丽壮观，权威旺盛，功名荣达', w: 1 },
+  { n: '掘藏得金', s: '家门余庆，金钱丰盈，白手成家', w: 1 },
+  { n: '荣俊之数', s: '资性英敏，才能奇特，克服万难', w: 0.8 },
+  { n: '变怪之数', s: '波澜万丈，英雄运格，宜慎宜守', w: 0.2 },
+  { n: '增长之数', s: '欲望无止，自我心强，易受诽谤', w: 0.2 },
+  { n: '阔水浮萍', s: '遭难非运，家亲缘薄，祸乱频发', w: 0 },
+  { n: '智谋之数', s: '财力归集，名闻海内，成就大业', w: 0.8 },
+  { n: '非运之数', s: '浮沉不定，吉凶难分，投机必败', w: 0.5 },
+  { n: '春日花开', s: '智勇得志，博得名利，统领众人', w: 1 },
+  { n: '宝马金鞍', s: '侥幸多望，贵人得助，财帛如裕', w: 1 },
+  { n: '升天之数', s: '家门隆昌，才德开展，名闻天下', w: 1 },
+  { n: '破家之身', s: '见识薄弱，辛苦不绝，财命难全', w: 0 },
+  { n: '高楼望月', s: '温和平静，智达通畅，文昌技艺', w: 0.8 },
+  { n: '波澜重叠', s: '风浪不息，万顷波涛，侠义薄运', w: 0 },
+  { n: '猛虎出林', s: '权威显达，热诚忠信，宜养雅量', w: 1 },
+  { n: '磨铁成针', s: '意志薄弱，刻意经营，徒劳无功', w: 0.5 },
+  { n: '富贵荣华', s: '财帛丰盈，暗藏险象，德泽四方', w: 0.8 },
+  { n: '退安之数', s: '智谋胆力，冒险投机，慎始保安', w: 0.5 },
+  { n: '有德之数', s: '纯阳独秀，德望兼备，事事如意', w: 1 },
+  { n: '寒蝉在柳', s: '十艺不成，博达多能，贪功好进', w: 0.2 },
+  { n: '散财之数', s: '散财破产，诸事不遂，虽有智谋', w: 0.2 },
+  { n: '烦闷之数', s: '愁眉不展，逆境烦闷，宜守宜静', w: 0 },
+  { n: '顺风之数', s: '新生泰和，富贵繁荣，事事如意', w: 1 },
+  { n: '罗网系身', s: '浪里淘金，载宝沉舟，须防大难', w: 0 },
+  { n: '点石成金', s: '花开之象，万事如意，祯祥吉庆', w: 1 },
+  { n: '古松立鹤', s: '智谋兼备，德量荣达，威望成师', w: 1 },
+  { n: '转变之数', s: '吉凶难分，不断遇险，由吉转凶', w: 0.5 },
+  { n: '小舟入海', s: '吉凶参半，须防倾覆，一成一败', w: 0.5 },
+  { n: '盛衰交加', s: '一盛一衰，浮沉不定，知命改运', w: 0.5 },
+  { n: '卓识达眼', s: '先见之明，理想实现，名望隆昌', w: 1 },
+  { n: '外祥内患', s: '盛衰参半，外祥内苦，忧闷频来', w: 0.5 },
+  { n: '多难非运', s: '石上藏玉，难得贵人，忧愁不绝', w: 0 },
+  { n: '外美内苦', s: '谋事难成，虽具智慧，终难发达', w: 0.2 },
+  { n: '事与愿违', s: '浪里行舟，欲速不达，力不从心', w: 0 },
+  { n: '寒雪青松', s: '最大荣运，一度灾难，福泽无穷', w: 0.8 },
+  { n: '晚行遇月', s: '沉浮多端，始吉终凶，先苦后甜', w: 0.5 },
+  { n: '寒蝉悲风', s: '须待外助，虽有勇气，终难成就', w: 0 },
+  { n: '无谋之数', s: '黑暗无光，摇动不安，常遭失败', w: 0 },
+  { n: '牡丹芙蓉', s: '名利双收，德望兼备，繁荣昌隆', w: 1 },
+  { n: '衰败之数', s: '基础虚弱，意志薄弱，内外不和', w: 0 },
+  { n: '富贵荣达', s: '安稳吉庆，德泽四方，事事如意', w: 1 },
+  { n: '骨肉分离', s: '孤独无依，浮沉不定，难得平安', w: 0 },
+  { n: '富贵长寿', s: '事事如意，福寿康宁，德望兼备', w: 1 },
+  { n: '进退失据', s: '艰难不堪，内外不和，障碍重重', w: 0 },
+  { n: '家道昌隆', s: '万事亨通，德望兼备，家道昌隆', w: 1 },
+  { n: '顺风顺水', s: '智虑周密，志向坚定，家运昌隆', w: 1 },
+  { n: '非业之数', s: '坐立不安，穷迫灾祸，须防破财', w: 0 },
+  { n: '惨淡之数', s: '忧愁不绝，倾家荡产，祸乱频发', w: 0 },
+  { n: '石上藏玉', s: '贵人得助，天乙贵人，可获大志', w: 0.5 },
+  { n: '先甘后苦', s: '暗藏悲惨，先甜后苦，须防破财', w: 0.2 },
+  { n: '志高力微', s: '努力奋斗，志高力微，须待时运', w: 0.5 },
+  { n: '残花败柳', s: '无聊之境，事事不如意，难望发达', w: 0 },
+  { n: '退守之数', s: '守吉避凶，退守平安，可得小成', w: 0.5 },
+  { n: '倾覆之数', s: '万事休止，倾家荡产，须防大难', w: 0 },
+  { n: '家庭有悦', s: '先苦后甜，家庭有悦，但难久长', w: 0.5 },
+  { n: '晚苦之数', s: '祸从口出，前吉后苦，须防小人', w: 0.5 },
+  { n: '云头望月', s: '身疲力尽，穷迫灾祸，须防破财', w: 0 },
+  { n: '遁世之数', s: '凶星入度，早入遁世，方可保安', w: 0 }
+];
+
+/* ---------- 八星数字磁场 ----------
+   每星四档强度（数字能量学通行排序），档位权重 TIER_W。
+   64 个组合恰好覆盖 {1,2,3,4,6,7,8,9} 的全部两两排列（56 有序对 + 8 叠数）。
+   0 与 5 不成磁场：0 为空亡（削弱/隐藏），5 为强化（放大同组能量）。   */
+const TIER_W = [2, 1.6, 1.2, 0.8];
+
+const STAR_DEF = [
+  { g: 'tiany', n: '天医', lucky: 1,
+    d: '正财之库，主财富、健康与婚姻美满。八星中最旺财的一组，逢之财源稳定、贵人相扶。',
+    good: '财路清晰、身体底子好、感情质量高，是标准的「旺财旺身」组合。',
+    bad: '过旺则安于现状、缺少冲劲；若紧邻凶星，反成「财来财去」。',
+    tiers: [['13', '31'], ['68', '86'], ['49', '94'], ['27', '72']] },
+  { g: 'yinian', n: '延年', lucky: 1,
+    d: '主事业、领导力与专业能力。逢之意志坚定、守财有方，宜独当一面、掌权管事。',
+    good: '专业过硬、扛得住事，适合做负责人与技术权威，守财能力强。',
+    bad: '过刚则固执强势、易与人对立；劳心劳身，宜刻意柔化。',
+    tiers: [['19', '91'], ['78', '87'], ['34', '43'], ['26', '62']] },
+  { g: 'shengqi', n: '生气', lucky: 1,
+    d: '主贵人、人缘与乐观。逢之逢凶化吉、遇难呈祥，社交场上处处有帮手。',
+    good: '天生带贵人缘，心态宽松，出问题时总有人拉一把。',
+    bad: '过旺则懒散随性、依赖心重，容易因太乐观而错失决断时机。',
+    tiers: [['14', '41'], ['67', '76'], ['39', '93'], ['28', '82']] },
+  { g: 'fuwei', n: '伏位', lucky: 1,
+    d: '主蓄势、耐力与稳定。逢之心思缜密、按部就班，宜守成与长线布局。',
+    good: '耐力好、不冒进，属于后发型；长期主义者的底盘。',
+    bad: '过旺则拖延被动、原地踏步，机会来了不敢出手。',
+    tiers: [['11', '22'], ['88', '99'], ['66', '77'], ['33', '44']] },
+  { g: 'jueming', n: '绝命', lucky: -1,
+    d: '主冲动、极端与孤注一掷。行动力极强、敢赌敢拼，短线爆发力惊人。',
+    good: '执行力与冒险精神突出，适合竞争性强的开拓型岗位。',
+    bad: '财来财去、易破财伤身；忌高杠杆、忌情绪化决策，须以「止损」为戒。',
+    tiers: [['12', '21'], ['69', '96'], ['48', '84'], ['37', '73']] },
+  { g: 'wugui', n: '五鬼', lucky: -1,
+    d: '主变动、机敏与思维跳跃。聪明伶俐、反应快，适合创意、策划、研究类工作。',
+    good: '点子多、学得快，在变化快的行业里反而是优势。',
+    bad: '心性不定、易生变故；主血光意外与破财，忌频繁跳槽、忌夜间冒险行车。',
+    tiers: [['18', '81'], ['79', '97'], ['36', '63'], ['24', '42']] },
+  { g: 'liusha', n: '六煞', lucky: -1,
+    d: '主情感、人际纠葛与心思细腻。重感情、审美佳，人缘看似很好。',
+    good: '共情力与审美在线，适合与人打交道、做内容与品牌。',
+    bad: '易陷感情困扰与是非，情绪起伏大；主忧郁失眠，感情用事则破财。',
+    tiers: [['16', '61'], ['47', '74'], ['38', '83'], ['29', '92']] },
+  { g: 'huohai', n: '祸害', lucky: -1,
+    d: '主口舌是非与病痛。言多必失、易招小人诽谤，做事常虎头蛇尾。',
+    good: '口才与表达欲强，用在谈判、教学、内容输出上是加分项。',
+    bad: '忌为人作保、忌口无遮拦；主肠胃与慢性小恙，宜守口如瓶、以静制动。',
+    tiers: [['17', '71'], ['89', '98'], ['46', '64'], ['23', '32']] }
+];
+
+const CIGROUP = {};
+const CIPAIR = {};
+for (const s of STAR_DEF) {
+  CIGROUP[s.g] = {
+    n: s.n, lucky: s.lucky, d: s.d, good: s.good, bad: s.bad,
+    cls: s.lucky > 0 ? 'ji' : 'xiong',
+    t: s.tiers.flat()
+  };
+  s.tiers.forEach((tier, ti) => {
+    for (const p of tier) {
+      CIPAIR[p] = { g: s.g, n: s.n, w: TIER_W[ti] * s.lucky, tier: ti + 1, lucky: s.lucky };
+    }
+  });
+}
+
+/* 空亡 / 隐数（含 0 或 5 的组合） */
+const CIZERO = {
+  n: '空亡', g: 'zero', w: -0.5, lucky: 0, cls: 'kong', tier: 0,
+  d: '0 主归藏与空亡：能量被隐藏或清零，暗财可得而明财易空；5 主变动与放大，会加强同组能量。'
+};
+CIGROUP.zero = { n: '空亡', lucky: 0, cls: 'kong', t: ['00', '05', '50', '55'],
+  d: CIZERO.d, good: '', bad: '' };
+
+/* ---------- 河图五行 ---------- */
+const FIVE = {
+  '1': { e: '水', c: '#4C8FD6' }, '6': { e: '水', c: '#4C8FD6' },
+  '2': { e: '火', c: '#D9534F' }, '7': { e: '火', c: '#D9534F' },
+  '3': { e: '木', c: '#5CB85C' }, '8': { e: '木', c: '#5CB85C' },
+  '4': { e: '金', c: '#E0C068' }, '9': { e: '金', c: '#E0C068' },
+  '5': { e: '土', c: '#B08A5A' }, '0': { e: '土', c: '#B08A5A' }
+};
+const WUXING_ORDER = ['木', '火', '土', '金', '水'];
+const WUXING_TEXT = {
+  '木': { nature: '生发、仁慈、上进', desc: '木主仁，性直情和。木旺者有进取心与同情心，宜文教、策划、成长型行业。' },
+  '火': { nature: '炎上、礼义、热情', desc: '火主礼，性急情恭。火旺者热情有感染力，宜销售、演艺、餐饮、能源。' },
+  '土': { nature: '承载、信用、稳重', desc: '土主信，性重情厚。土旺者踏实可靠、能守业，宜地产、农业、服务、仓储。' },
+  '金': { nature: '肃杀、义气、决断', desc: '金主义，性刚情烈。金旺者果断讲原则，宜金融、机械、法律、军警。' },
+  '水': { nature: '润下、智慧、变通', desc: '水主智，性聪情善。水旺者灵活善谋，宜贸易、物流、传媒、咨询。' }
+};
+
+/* ---------- 尾号寓意（w：-1 ~ 1） ---------- */
+const TAIL = [
+  { n: '归零守成', w: -0.3, d: '尾号 0 主「藏」：财不外露、稳守有余，但明面上的机会感偏弱，宜把收益落到可查证的凭据上。' },
+  { n: '一统开创', w: 0.6, d: '尾号 1 为太极之始：主独立、开创与主导权，适合自主经营与需要拍板的位置。' },
+  { n: '双全平衡', w: 0.4, d: '尾号 2 为两仪：主平衡、伴侣与协作，人缘与家宅平顺，唯决断力稍弱。' },
+  { n: '生发进取', w: 0.6, d: '尾号 3 为三才：主生发、表达与才华，适合内容、教育、创意类路径。' },
+  { n: '定分守成', w: -0.7, d: '尾号 4 河图属金，主秩序与决断；因谐音之故民间忌讳较重。若本人五行喜金，反为助力，不必因忌讳而换号。' },
+  { n: '变动枢纽', w: 0.1, d: '尾号 5 居九宫之中：主变动与放大，人生节奏起伏较大，机会与波折同源。' },
+  { n: '顺遂财禄', w: 0.9, d: '尾号 6 为六爻：主顺遂、财禄与家宅安宁，是尾号中最受欢迎的一位。' },
+  { n: '谋略内敛', w: 0.3, d: '尾号 7 为七政：主谋略与探究，适合研究、技术、投资分析，唯性子偏内敛。' },
+  { n: '发达财富', w: 1.0, d: '尾号 8 为八方：主财富、发达与扩张，河图属木，是尾号中财气最旺的一位。' },
+  { n: '长久尊贵', w: 0.8, d: '尾号 9 为阳数之极：主长久、尊贵与圆满，宜守成与长线经营，忌急功近利。' }
+];
+
+/* ---------- 号段参考（携号转网后不准，仅作展示） ---------- */
+const CM = '134,135,136,137,138,139,147,148,150,151,152,157,158,159,165,172,178,182,183,184,187,188,195,197,198';
+const CU = '130,131,132,145,146,155,156,166,167,171,175,176,185,186,196';
+const CT = '133,149,153,173,174,177,180,181,189,190,191,193,199';
+const CB = '192';
+const MV = '162,170';
+const CARRIER = {};
+for (const [name, list] of [['中国移动', CM], ['中国联通', CU], ['中国电信', CT], ['中国广电', CB], ['虚拟运营商', MV]]) {
+  for (const p of list.split(',')) CARRIER[p] = name;
+}
+const carrierOf = p => CARRIER[p] || '未收录号段';
+/* ======== engine.js ======== */
+/* engine.js · 测算内核（纯函数，零 DOM，可单测 / 可在 Worker 里跑） */
+
+/* ---------- 工具 ---------- */
+const clampN = (n, a, b) => Math.max(a, Math.min(b, n));
+
+/* 剥国际区号（+86 / 0086 / 86）。
+   这是「剥区号」的唯一实现：输入框与校验都必须先做这步再谈长度，
+   否则粘贴 "+8613800138000" 会被截成 "86138001380"（错的号码），校验层救不回来。 */
+function stripCC(digits) {
+  if (digits.length > 11) {
+    if (digits.startsWith('0086')) return digits.slice(4);
+    if (digits.startsWith('86')) return digits.slice(2);
+  }
+  return digits;
+}
+
+/* 输入框用：剥区号后硬截 11 位（输入框本就是 11 位硬上限） */
+function normalizeInput(raw) {
+  return stripCC(String(raw || '').replace(/\D/g, '')).slice(0, 11);
+}
+
+/* 校验用：剥区号后不静默截断 —— 超长仍应报错，
+   避免把「两串号码粘在一起」这类输入悄悄算错号 */
+function validate(raw) {
+  const digits = stripCC(String(raw || '').replace(/\D/g, ''));
+  if (digits.length === 0) return { ok: false, err: '请输入手机号码' };
+  if (digits.length < 11) return { ok: false, err: `还差 ${11 - digits.length} 位（已输入 ${digits.length} 位）` };
+  if (digits.length > 11) {
+    return { ok: false, err: `手机号为 11 位，当前 ${digits.length} 位；若含国际区号可直接粘贴（+86 会自动识别）` };
+  }
+  if (digits[0] !== '1') return { ok: false, err: '大陆手机号以 1 开头' };
+  if (digits[1] === '0' || digits[1] === '1' || digits[1] === '2') {
+    return { ok: false, err: `1${digits[1]}x 不是有效号段` };
+  }
+  return { ok: true, num: digits };
+}
+
+/* 全站统一的号码读法：3-4-4（号段 3 位 + HLR 4 位 + 用户号 4 位）。
+   唯一实现：结果卡 / 历史 / 对比条 / 分享图都必须用它，禁止再造缩写格式。 */
+const fmtFull = n => `${n.slice(0, 3)} ${n.slice(3, 7)} ${n.slice(7)}`;
+
+/* ---------- 选号推荐 ---------- */
+/* 五行 → 数字（河图）；星 → 两两组合（由 CIPAIR 反转） */
+const DIGITS_OF = { 水: ['1', '6'], 火: ['2', '7'], 木: ['3', '8'], 金: ['4', '9'], 土: ['5', '0'] };
+const PAIRS_OF = (() => {
+  const m = {};
+  for (const [p, v] of Object.entries(CIPAIR)) (m[v.g] = m[v.g] || []).push(p);
+  return m;
+})();
+/* 维度 → 对其有正贡献的星（与 profile() 的系数方向一致） */
+const DIM_GOOD = {
+  cai: ['tiany', 'shengqi'], shi: ['yinian', 'fuwei'], qing: ['tiany', 'shengqi'],
+  jian: ['tiany', 'shengqi'], ren: ['shengqi', 'tiany']
+};
+const DIM_NAMES = { cai: '财运', shi: '事业', qing: '感情', jian: '健康', ren: '人际' };
+
+/* 吉利号型模板：生成尾 4 位（或尾 3 位豹子）。
+   候选数字避开 4（noFour），优先用补缺数字——号型与补缺同向时一举两得。 */
+function shapeLast4(shape, fillD, allowed, rng) {
+  const lucky = ['8', '6', '9', '2', '3', '7', '1'].filter(allowed);
+  /* fillD 与 lucky 拼接（不去重）= 补缺数字权重 ×2，属有意加权：
+     号型与补缺同向时一举两得。实测会系统性偏好补缺元素
+     （如感情弱 + 补火 → 豹子倾向 777），这是分数排名的真实结果，非偶然。 */
+  const pool = fillD.filter(allowed).concat(lucky);
+  const d = () => pool[Math.floor(rng() * pool.length)];
+  if (shape === 'baozi') { const c = d(); return c + c + c; }            // 尾3连
+  if (shape === 'duizi') { let a = d(), b = d(); while (b === a) b = d(); return a + a + b + b; }
+  if (shape === 'xunhuan') { let a = d(), b = d(); while (b === a) b = d(); return a + b + a + b; }
+  if (shape === 'shunzi') {
+    const starts = ['0', '5', '6', '7'].filter(s =>
+      [0, 1, 2, 3].every(k => allowed(String((+s + k) % 10))));
+    if (!starts.length) return null;
+    const s = +starts[Math.floor(rng() * starts.length)];
+    return [0, 1, 2, 3].map(k => String((s + k) % 10)).join('');
+  }
+  return null;
+}
+
+/* ---------- 方案存储的校验（纯函数，可单测） ----------
+   与 compare 的快照同理：localStorage 里的东西一律当不可信数据，
+   版本迭代或手改都可能留下畸形条目，读回必须逐字段校验。 */
+const REC_TARGETS = ['auto', 'all', 'cai', 'shi', 'qing', 'jian', 'ren'];
+const REC_SHAPES = ['any', 'baozi', 'shunzi', 'duizi', 'xunhuan'];
+
+function sanitizeRec(o) {
+  if (!o || typeof o !== 'object') return null;
+  if (!REC_TARGETS.includes(o.target) || !REC_SHAPES.includes(o.shape)) return null;
+  if (typeof o.fill !== 'boolean' || typeof o.noFour !== 'boolean') return null;
+  return { target: o.target, shape: o.shape, fill: o.fill, noFour: o.noFour };
+}
+
+const isPlan = p => !!p && typeof p === 'object'
+  && Number.isFinite(p.ts)
+  && typeof p.base === 'string' && /^1\d{10}$/.test(p.base)
+  && !!sanitizeRec(p.opts)
+  && Array.isArray(p.items) && p.items.length > 0 && p.items.length <= 6
+  && p.items.every(x => !!x && typeof x.num === 'string' && /^1\d{10}$/.test(x.num)
+    && Number.isFinite(x.total) && typeof x.g === 'string'
+    && Number.isFinite(x.deltaDim) && Number.isFinite(x.deltaTotal));
+
+const sanitizePlans = arr => Array.isArray(arr) ? arr.filter(isPlan).slice(0, 6) : [];
+
+/**
+ * recommend(num, opts)：基于原号生成候选号并排序。
+ * @param opts.target 'auto'(最弱维) | 'all'(综合) | 'cai'|'shi'|'qing'|'jian'|'ren'
+ * @param opts.shape  'any'|'baozi'|'shunzi'|'duizi'|'xunhuan'
+ * @param opts.fill   五行补缺（候选须覆盖原号缺失元素），默认 true
+ * @param opts.noFour 避开数字 4，默认 true
+ * @param opts.rng    可注入伪随机（测试用），默认 Math.random
+ * @returns {ok, base, dimKey, list:[{num,total,g,luck,dims,deltaDim,deltaTotal,reasons}]}
+ */
+function recommend(num, opts = {}) {
+  const base = analyze(num);
+  if (!base.ok) return { ok: false, err: base.err };
+
+  const rng = opts.rng || Math.random;
+  const target = opts.target || 'auto';
+  const shape = opts.shape || 'any';
+  const noFour = opts.noFour !== false;
+  const wantFill = opts.fill !== false;
+  const allowed = d => !noFour || d !== '4';
+  const pick = arr => arr[Math.floor(rng() * arr.length)];
+
+  const dimKey = target === 'auto'
+    ? [...base.dims].sort((a, b) => a.v - b.v)[0].k
+    : (target === 'all' ? null : target);
+  const dimName = dimKey ? DIM_NAMES[dimKey] : '综合';
+
+  /* 候选吉星对池（含 4 则剔除该对） */
+  const goodPairs = (dimKey ? DIM_GOOD[dimKey] : ['tiany', 'yinian', 'shengqi', 'fuwei'])
+    .flatMap(g => PAIRS_OF[g] || [])
+    .filter(p => [...p].every(allowed));
+  const fillD = wantFill ? base.five.missing.flatMap(e => DIGITS_OF[e]) : [];
+
+  const genTail = () => {
+    /* 前两对（吉星，权重低）+ 后 4 位（形态模板或另两对吉星）= 恒 8 位 */
+    const parts = [pick(goodPairs), pick(goodPairs)];
+    const last4 = shape !== 'any' ? shapeLast4(shape, fillD, allowed, rng) : null;
+    if (last4 && last4.length === 3) parts.push(pick(goodPairs)[0] + last4);
+    else if (last4) parts.push(last4);
+    else parts.push(pick(goodPairs), pick(goodPairs));
+    const tail = parts.join('').split('');
+    /* 五行补缺注入：只动非形态位（形态尾保持完整） */
+    if (fillD.length) {
+      const slots = shape !== 'any' ? [0, 1, 2, 3] : [0, 1, 2, 3, 4, 5];
+      for (const e of base.five.missing) {
+        if (!tail.some(c => DIGITS_OF[e].includes(c))) {
+          const cand = DIGITS_OF[e].filter(allowed);
+          if (cand.length) tail[pick(slots)] = pick(cand);
+        }
+      }
+    }
+    return tail.join('');
+  };
+
+  const seen = new Set([num]);
+  const cands = [];
+  let guard = 0;
+  while (cands.length < 140 && guard++ < 4000) {
+    const n = num.slice(0, 3) + genTail();
+    if (seen.has(n)) continue;
+    seen.add(n);
+    if (wantFill && base.five.missing.some(e => !n.split('').some(c => DIGITS_OF[e].includes(c)))) continue;
+    cands.push(n);
+  }
+
+  const rank = r => dimKey
+    ? r.dims.find(d => d.k === dimKey).v * 0.65 + r.total * 0.35
+    : r.total;
+
+  const list = cands
+    .map(n => analyze(n)).filter(r => r.ok)
+    .map(r => {
+      const bd = base.dims.find(d => d.k === dimKey) || { v: base.total };
+      const rd = dimKey ? r.dims.find(d => d.k === dimKey) : { v: r.total };
+      /* 理由：与原号逐项对比，只说真发生的变化 */
+      const reasons = [];
+      const covered = base.five.missing.filter(e => (r.five.cnt[e] || 0) > 0);
+      if (covered.length) {
+        reasons.push({ t: '五行', d: `补${covered.join('、')}：` +
+          covered.map(e => `${e}用${DIGITS_OF[e].filter(allowed).join('/')}`).join('，') });
+      }
+      const lastPair = r.magnet.groups[r.magnet.groups.length - 1];
+      const lg = CIGROUP[lastPair.info.g];
+      if (lg && lg.lucky > 0) {
+        reasons.push({ t: '尾磁', d: `尾入${lastPair.info.n}（${lastPair.pair}），全盘落点` });
+      }
+      const feats = r.pattern.feats.filter(f => f.k === 'good').slice(0, 2).map(f => f.t);
+      if (feats.length) reasons.push({ t: '号型', d: feats.join('；') });
+      const fmtD = (a, b) => `${Math.round(b)}（${b - a >= 0 ? '+' : ''}${(b - a).toFixed(1)}）`;
+      reasons.push({ t: '对比', d: dimKey
+        ? `${dimName} ${fmtD(bd.v, rd.v)} · 综合 ${fmtD(base.total, r.total)}`
+        : `综合 ${fmtD(base.total, r.total)}` });
+      return {
+        num: r.num, total: r.total, g: r.grade.grade, luck: r.grade.luck,
+        dims: r.dims.map(d => Math.round(d.v)),
+        deltaDim: +(rd.v - bd.v).toFixed(1), deltaTotal: +(r.total - base.total).toFixed(1),
+        reasons
+      };
+    })
+    .sort((a, b) => rank(analyze(b.num)) - rank(analyze(a.num)) || b.total - a.total)
+    .slice(0, 6);
+
+  return { ok: true, base, dimKey, dimName, list };
+}
+/* ---------- ① 81 数理灵数 ---------- */
+function shuLi(num) {
+  const last4 = parseInt(num.slice(-4), 10);
+  const r = last4 % 80;
+  const idx = r === 0 ? 80 : r;
+  return { last4, idx, ...SHULI[idx], point: 30 + SHULI[idx].w * 70 };
+}
+
+/* ---------- ② 八星数字磁场 ---------- */
+/* 去号段（前 3 位为「先天号段」，只作展示），后 8 位两两分组 = 4 组磁场。
+   权重：越靠后影响越大（1 / 1.2 / 1.5 / 2）——尾号定盘的通行说法。 */
+const PAIR_W = [1, 1.2, 1.5, 2];
+
+/* 五维原始分的离线标定值（mu=均值, sd=标准差），由 scripts/calibrate.mjs 实测填入。
+   作用：把各维原始分映射到统一标尺，使五个维度跨维可比。
+   改任何维度系数后必须重跑标定，否则雷达形状会失真。 */
+const RAW = {
+  cai:  { mu: 56.23, sd: 7.59 },
+  shi:  { mu: 60.39, sd: 6.73 },
+  qing: { mu: 58.89, sd: 6.63 },
+  jian: { mu: 60.35, sd: 7.32 },
+  ren:  { mu: 61.95, sd: 6.88 }
+};
+
+function magnet(num) {
+  const body = num.slice(3);            // 8 位
+  const groups = [];
+  let raw = 0;                          // 加权吉凶分（-2 ~ +2 每单位权重）
+  let wsum = 0;
+
+  for (let i = 0; i < body.length; i += 2) {
+    const pair = body.slice(i, i + 2);
+    const w = PAIR_W[i / 2];
+    const gi = i / 2;
+    const meta = { pair, weight: w, pos: gi, zero: [], strong: false, info: null };
+
+    /* 0 / 5 的处理（数字能量学通行规则）
+       5 = 强化：放大同组主能量；0 = 空亡：削弱/隐藏主能量。
+       含 0 或 5 的组合不构成八星磁场对，先剥离再判断剩余部分。 */
+    let core = pair;
+    for (const ch of pair) {
+      if (ch === '0') meta.zero.push('0');
+      if (ch === '5') meta.strong = true;
+    }
+    core = pair.replace(/[05]/g, '');
+
+    if (core.length === 2 && CIPAIR[core]) {
+      meta.info = { ...CIPAIR[core], lucky: CIGROUP[CIPAIR[core].g].lucky };
+    } else if (core.length === 0) {
+      meta.info = { ...CIZERO, g: 'zero' };
+    } else {
+      /* 50 / 05 / 55 / 00 / 单数字残余 —— 归入「隐数」 */
+      meta.info = { ...CIZERO, g: 'zero', n: '隐数', tag: pair.split('').map(d => NUM[d].t).join('') };
+    }
+
+    let g = meta.info.w;
+    if (meta.strong) g *= 1.35;                     // 5 放大
+    if (meta.zero.length) g *= (meta.zero.length > 1 ? 0.35 : 0.6);  // 0 削弱
+    meta.eff = g;
+    raw += g * w;
+    wsum += w;
+    groups.push(meta);
+  }
+
+  const base = raw / (wsum * 2) * 100;              // -100 ~ +100
+  return { groups, body, score: clampN(70 + base * 0.30, 0, 100), raw };
+}
+
+/* ---------- ③ 河图五行 ---------- */
+function fiveElement(num) {
+  const cnt = { 水: 0, 火: 0, 木: 0, 金: 0, 土: 0 };
+  for (const d of num) cnt[FIVE[d].e]++;
+  const total = num.length;
+  const keys = Object.keys(cnt);
+  const ideal = total / 5;
+  const missing = keys.filter(k => cnt[k] === 0);
+  const counts = keys.map(k => cnt[k]);
+  const varSum = counts.reduce((s, c) => s + Math.abs(c - ideal), 0);
+  const maxK = keys.reduce((a, b) => (cnt[a] >= cnt[b] ? a : b));
+  const minK = keys.reduce((a, b) => (cnt[a] <= cnt[b] ? a : b));
+
+  /* 相生链：水→木→火→土→金→水；相邻两位相生加分，相克扣分 */
+  const SHENG = { 水: '木', 木: '火', 火: '土', 土: '金', 金: '水' };
+  const KE = { 水: '火', 火: '金', 金: '木', 木: '土', 土: '水' };
+  let flow = 0, flowNote = [];
+  const seq = [...num].map(d => FIVE[d].e);
+  for (let i = 0; i < seq.length - 1; i++) {
+    if (SHENG[seq[i]] === seq[i + 1]) { flow += 1; }
+    else if (KE[seq[i]] === seq[i + 1]) { flow -= 1.4; flowNote.push(`${seq[i]}克${seq[i + 1]}`); }
+    else if (SHENG[seq[i + 1]] === seq[i]) { flow += 0.4; }
+    else if (KE[seq[i + 1]] === seq[i]) { flow -= 0.7; }
+  }
+
+  /* 均衡度：完全均衡 = 100，越偏越低 */
+  const evenness = clampN(100 - (varSum / total) * 100 * 0.85, 0, 100);
+  const flowScore = clampN(50 + flow * 5, 0, 100);
+  const score = clampN(evenness * 0.5 + flowScore * 0.4 + 8 - missing.length * 2.5, 0, 100);
+
+  return { cnt, total, missing, dominant: maxK, weakest: minK, evenness, flow,
+           flowNote: [...new Set(flowNote)], score, seq };
+}
+
+/* ---------- ④ 号码形态 ---------- */
+function pattern(num) {
+  const feats = [];
+  let score = 62;                 // 形态基准分（大多数号码是普通号）
+
+  const digits = [...num];
+  const d = num.slice(3);         // 用户号（8 位）
+
+  /* 豹子：连续 3 位以上相同 */
+  const rep = /(\d)\1{2,}/.exec(num);
+  if (rep) {
+    const L = rep[0].length;
+    const n = NUM[rep[1]].n;
+    if (L >= 4) { feats.push({ k: 'neutral', t: `${L} 连豹子号「${rep[0]}」`, d: `同一数字连出 ${L} 位（${n}），极稀有号型。传统视为「气场极纯」，能量强而单一，主大起大落；商业上辨识度极高，本身即资产。` }); score += 16; }
+    else { feats.push({ k: 'good', t: `三连豹子「${rep[0]}」`, d: `${n} 连出三位，号型稀有，记忆点强。` }); score += 12; }
+  }
+
+  /* 顺子：连续 4 位以上递增 / 递减 */
+  let asc = 1, desc = 1, bestAsc = 1, bestDesc = 1, ascAt = 0, descAt = 0;
+  for (let i = 1; i < num.length; i++) {
+    const a = +num[i - 1], b = +num[i];
+    asc = (b === a + 1) ? asc + 1 : 1;
+    desc = (b === a - 1) ? desc + 1 : 1;
+    if (asc > bestAsc) { bestAsc = asc; ascAt = i - asc + 1; }
+    if (desc > bestDesc) { bestDesc = desc; descAt = i - desc + 1; }
+  }
+  if (bestAsc >= 4) {
+    const s = num.slice(ascAt, ascAt + bestAsc);
+    feats.push({ k: 'good', t: `步步高升「${s}」`, d: `${bestAsc} 位连续递增。数理取「节节高」之象，主运势顺势而上、贵人递接，是号型中最受欢迎的一类。` });
+    score += 10 + bestAsc;
+  }
+  if (bestDesc >= 4) {
+    const s = num.slice(descAt, descAt + bestDesc);
+    feats.push({ k: 'neutral', t: `倒顺「${s}」`, d: `${bestDesc} 位连续递减。顺而下行，主「收」不主「放」：守成、回笼资金有力，开拓稍弱。` });
+    score += 4;
+  }
+
+  /* 对子（AABB / ABAB） */
+  const aabb = /(\d)\1(\d)\2/.exec(num);
+  if (aabb) { feats.push({ k: 'good', t: `对子连「${aabb[0]}」`, d: `AABB 双对结构，主稳定、成双，人缘与家宅平顺。` }); score += 6; }
+  const abab = /(\d)\1?(\d)\1\2/.exec(num);
+  if (!aabb && /(\d)(\d)\1\2/.exec(num)) {
+    const m = /(\d)(\d)\1\2/.exec(num);
+    feats.push({ k: 'good', t: `循环对「${m[0]}」`, d: `ABAB 往复结构，主反复得财、机会循环，适合业务型号码。` }); score += 6;
+  }
+
+  /* 首尾呼应 */
+  if (num[0] === num[10]) { feats.push({ k: 'good', t: '首尾同数', d: '号首与号尾同一数字，取「有始有终」之象。' }); score += 3; }
+
+  /* 含 4 计数 */
+  const four = (num.match(/4/g) || []).length;
+  if (four >= 3) { feats.push({ k: 'bad', t: `数字 4 出现 ${four} 次`, d: `4 属金（河图 4/9 金），谐音「世」亦谐「死」，民间忌讳较重。数理上金多主刚硬、决断力强而少圆融；若本人五行喜金，反为助力。` }); score -= 12; }
+  else if (four === 2) { feats.push({ k: 'neutral', t: '数字 4 出现 2 次', d: '民间避讳之数，但两位分散不构成号型缺陷；河图属金，主决断。' }); score -= 4; }
+  else if (four === 1) { feats.push({ k: 'neutral', t: '含 1 个 4', d: '单点出现，影响轻微。' }); score -= 1; }
+
+  /* 全号相同数字种类过少 */
+  const kinds = new Set(digits).size;
+  if (kinds <= 3) { feats.push({ k: 'neutral', t: `全号仅 ${kinds} 种数字`, d: `五行覆盖面窄（只用 ${kinds} 种数），能量纯但不全，宜以姓名 / 车牌等其它号码补足缺失五行。` }); score -= 4; }
+  if (kinds >= 9) { feats.push({ k: 'good', t: `${kinds} 种数字齐备`, d: '十数得其九，五行俱全，气场流通无死角。' }); score += 7; }
+
+  /* 尾号寓意 */
+  const t = +num[10];
+  const tail = TAIL[t];
+  feats.push({ k: tail.w >= 0.5 ? 'good' : (tail.w <= -0.5 ? 'bad' : 'neutral'),
+               t: `尾号 ${t} · ${tail.n}`, d: tail.d });
+  score += tail.w * 9;
+
+  /* 末两位 */
+  const last2 = num.slice(-2);
+  if (CIPAIR[last2] && CIPAIR[last2].g !== 'zero') {
+    const gi = CIPAIR[last2].g, g = CIGROUP[gi];
+    feats.push({ k: g.lucky > 0 ? 'good' : 'bad', t: `收尾磁场 · ${g.n}`,
+                 d: `号码最后两位「${last2}」为${g.n}磁场（${g.t.join('/')}），全盘能量的落点：${g.d}` });
+  }
+
+  if (!feats.some(f => f.k === 'good')) {
+    feats.push({ k: 'neutral', t: '号型平实', d: '未见豹子、顺子、对子等稀有结构，属常规号型。稀有号型是市场溢价因素，与吉凶无必然关系。' });
+  }
+
+  return { feats, score: clampN(score, 0, 100), kinds, fourCount: four };
+}
+
+/* ---------- ⑤ 五维画像 ---------- */
+function profile(num, sl, mg, fe, pt) {
+  const G = mg.groups.map(g => g.info.g);
+  const W = mg.groups.map(g => g.weight * (g.eff / (g.info.w || 1)));   // 已含 0/5 修正的权重
+  /* 归一化到 0~1：同一星最多可占满四个位置（权重和 = WSUM），
+     不归一会让 cnt×系数直接冲穿 clampN，导致维度普遍顶到 99 而失去区分度。 */
+  const WSUM = PAIR_W.reduce((a, b) => a + b, 0);
+  const cnt = k => G.reduce((s, g, i) => s + (g === k ? W[i] : 0), 0) / WSUM;
+
+  /* 财：天医主正财，绝命主偏财但漏，祸害耗财，0 为暗财/空 */
+  let cai = 58 + cnt('tiany') * 30 - cnt('jueming') * 16 + cnt('shengqi') * 9
+            - cnt('huohai') * 13 - cnt('zero') * 8 + (fe.cnt['金'] - 2.2) * 3;
+  /* 事业：延年主专业与掌权，五鬼主创意但动荡，伏位主守 */
+  let shi = 58 + cnt('yinian') * 32 + cnt('wugui') * 9 - cnt('liusha') * 11
+            + cnt('fuwei') * 4 - cnt('jueming') * 9 + (fe.cnt['木'] - 2.2) * 2.5;
+  /* 感情：六煞主桃花纠葛，天医主正缘，伏位主冷 */
+  let qing = 60 - cnt('liusha') * 28 + cnt('tiany') * 20 - cnt('fuwei') * 9
+             + cnt('shengqi') * 11 - cnt('wugui') * 8 + (fe.cnt['火'] - 2.2) * 2.5;
+  /* 健康：祸害主病痛口舌，绝命主意外，天医主康健 */
+  let jian = 62 - cnt('huohai') * 28 - cnt('jueming') * 17 + cnt('tiany') * 22
+             + cnt('shengqi') * 8 - cnt('wugui') * 8 + (fe.cnt['土'] - 2.2) * 2.5;
+  /* 人际：生气主贵人，祸害主小人，六煞主人缘旺但杂 */
+  let ren = 58 + cnt('shengqi') * 32 - cnt('huohai') * 20 + cnt('liusha') * 8
+            + cnt('yinian') * 6 + (fe.cnt['水'] - 2.2) * 2.5;
+
+  /* 数理灵数与号型的整体牵引。
+     关键：这两项对五个维度是等量叠加，只会平移五边形、不产生形状差异。
+     早期版本系数过大（pull 最大 ±11、shapePull ±8），公共分量压过差异分量，
+     导致 50% 的号码雷达"极差 < 15"、五边形几乎一样。
+     现降到 0.22 倍，只作轻微底色；数理的分量主要由「总分」那条轴承担（权重 26%）。 */
+  const pull = (sl.w - 0.5) * 22 * 0.22;
+  const shapePull = (pt.score - 62) * 0.22 * 0.22;
+
+  /* 各维原始分 → 目标分布。
+     RAW_MU / RAW_SD 为离线实测的原始分均值与标准差（见 calibrate 脚本），
+     映射到 目标均值 62、目标标准差 13.5 —— 
+     这样五个维度共享同一标尺：p10≈45 / p50≈62 / p90≈80，跨维可比、雷达有形。 */
+  const fit = (v, mu, sd) => clampN(62 + (v - mu) * (13.5 / sd), 5, 97);
+
+  const raw = [
+    { k: 'cai',  n: '财运', v: cai + pull + shapePull },
+    { k: 'shi',  n: '事业', v: shi + pull + shapePull },
+    { k: 'qing', n: '感情', v: qing + pull + shapePull },
+    { k: 'jian', n: '健康', v: jian + pull + shapePull },
+    { k: 'ren',  n: '人际', v: ren + pull + shapePull },
+  ];
+  return raw.map(o => {
+    const v = fit(o.v, RAW[o.k].mu, RAW[o.k].sd);
+    return { k: o.k, n: o.n, v, d: dimText(o.k, v, G, fe) };
+  });
+}
+
+/* 离线标定用：返回五维「原始分」（未经 fit 映射），供 calibrate 脚本统计 mu/sd。
+   生产路径不依赖它，保留是为了下次改系数时能一键重标。 */
+function rawDims(num) {
+  const v = validate(num);
+  if (!v.ok) return null;
+  const sl = shuLi(v.num), mg = magnet(v.num), fe = fiveElement(v.num), pt = pattern(v.num);
+  const G = mg.groups.map(g => g.info.g);
+  const W = mg.groups.map(g => g.weight * (g.eff / (g.info.w || 1)));
+  const WSUM = PAIR_W.reduce((a, b) => a + b, 0);
+  const cnt = k => G.reduce((s, g, i) => s + (g === k ? W[i] : 0), 0) / WSUM;
+  const pull = (sl.w - 0.5) * 22 * 0.22;
+  const shapePull = (pt.score - 62) * 0.22 * 0.22;
+  return {
+    cai: 58 + cnt('tiany') * 30 - cnt('jueming') * 16 + cnt('shengqi') * 9
+         - cnt('huohai') * 13 - cnt('zero') * 8 + (fe.cnt['金'] - 2.2) * 3 + pull + shapePull,
+    shi: 58 + cnt('yinian') * 32 + cnt('wugui') * 9 - cnt('liusha') * 11
+         + cnt('fuwei') * 4 - cnt('jueming') * 9 + (fe.cnt['木'] - 2.2) * 2.5 + pull + shapePull,
+    qing: 60 - cnt('liusha') * 28 + cnt('tiany') * 20 - cnt('fuwei') * 9
+          + cnt('shengqi') * 11 - cnt('wugui') * 8 + (fe.cnt['火'] - 2.2) * 2.5 + pull + shapePull,
+    jian: 62 - cnt('huohai') * 28 - cnt('jueming') * 17 + cnt('tiany') * 22
+          + cnt('shengqi') * 8 - cnt('wugui') * 8 + (fe.cnt['土'] - 2.2) * 2.5 + pull + shapePull,
+    ren: 58 + cnt('shengqi') * 32 - cnt('huohai') * 20 + cnt('liusha') * 8
+         + cnt('yinian') * 6 + (fe.cnt['水'] - 2.2) * 2.5 + pull + shapePull,
+  };
+}
+
+function dimText(k, v, G, fe) {
+  const has = x => G.includes(x);
+  const T = {
+    cai: [
+      has('tiany') ? '天医磁场在盘，正财路清晰，收入与付出成正比。' : '盘中无天医，正财需靠专业与积累硬挣，横财无缘。',
+      has('jueming') ? '但绝命同现，进财快漏财也快，切忌加杠杆与替人担保。' : '',
+      has('huohai') ? '祸害磁场主口舌耗财，合同纠纷与言语失分是主要漏点。' : '',
+      fe.cnt['金'] >= 4 ? '五行金旺，决断与执行力是财路来源。' : (fe.cnt['金'] === 0 ? '五行缺金，收敛与议价能力偏弱，报价时容易心软。' : ''),
+    ],
+    shi: [
+      has('yinian') ? '延年磁场在盘，专业能力与掌权欲兼具，适合做到「负责人」这一层。' : '盘中无延年，靠职位驱动的路走不远，宜以作品与技术立身。',
+      has('wugui') ? '五鬼同现，创意与应变是长项，但耐不住重复性工作，容易中途换赛道。' : '',
+      has('fuwei') ? '伏位磁场主蓄势，早年平台期长，属于后发型。' : '',
+      fe.cnt['木'] >= 4 ? '五行木旺，生发之气足，新开局比守旧摊更容易出成绩。' : '',
+    ],
+    qing: [
+      has('liusha') ? '六煞磁场在盘，情感浓度高、共情力强，也更容易被关系反复消耗。' : '盘中无六煞，情感表达偏克制，关系稳定但热度不高。',
+      has('tiany') ? '天医同现，正缘质量高，伴侣往往同时是贵人。' : '',
+      has('fuwei') ? '伏位主冷处理，争执时容易沉默，需刻意把话说开。' : '',
+      fe.cnt['火'] >= 4 ? '五行火旺，情绪外露、爱憎分明。' : (fe.cnt['火'] === 0 ? '五行缺火，主动表达不足，容易被误读为冷淡。' : ''),
+    ],
+    jian: [
+      has('huohai') ? '祸害磁场在盘，传统认为主小病不断与口腔 / 呼吸系统弱点，宜规律作息。' : '盘中无祸害，身体底盘较稳。',
+      has('jueming') ? '绝命同现，注意意外与急症，忌熬夜后剧烈运动与疲劳驾驶。' : '',
+      has('tiany') ? '天医磁场主康健，恢复力好。' : '',
+      fe.cnt['土'] >= 4 ? '五行土旺，脾胃是重点，忌暴饮暴食。' : (fe.cnt['土'] === 0 ? '五行缺土，节律感弱，作息最容易乱。' : ''),
+    ],
+    ren: [
+      has('shengqi') ? '生气磁场在盘，天生带贵人缘，陌生人容易对你放下防备。' : '盘中无生气，人脉靠长期兑现信誉积累，慢热但牢固。',
+      has('huohai') ? '祸害同现，防口舌与背后是非，重要承诺尽量落文字。' : '',
+      has('liusha') ? '六煞磁场人缘旺而杂，需学会筛人。' : '',
+      fe.cnt['水'] >= 4 ? '五行水旺，沟通与流动能力强，适合跨圈层协作。' : '',
+    ],
+  };
+  const arr = T[k].filter(Boolean);
+  const band = v >= 78 ? '此项为全盘强项。' : v >= 62 ? '此项中上，正常发挥。' : v >= 46 ? '此项平平，靠后天补。' : '此项为全盘弱项，见下方化解建议。';
+  return arr.join(' ') + band;
+}
+
+/* ---------- ⑥ 综合评级与建议 ---------- */
+/* 档位阈值按 6000 号实测分位定标（p99≈81 / p95≈77.5 / p65≈69 / p35≈60 / p5≈51）
+   目标分布 ≈ S 1.5% / A 7.5% / B 26% / C 37% / D 24% / E 4% —— 金字塔而非一刀切 */
+const BANDS = [
+  [80, 'S', '上上签', '大吉'],
+  [75, 'A', '上签', '吉'],
+  [69, 'B', '中签', '中吉'],
+  [57, 'C', '中平', '平'],
+  [49, 'D', '下签', '小凶'],
+  [0,  'E', '下下签', '凶'],
+];
+
+function grade(total) {
+  for (const [min, g, q, l] of BANDS) if (total >= min) return { grade: g, qian: q, luck: l, min };
+  return { grade: 'E', qian: '下下签', luck: '凶', min: 0 };
+}
+
+function verdict(total, g) {
+  const V = {
+    S: ['号码格局完整，吉星压尾、五行不缺，属可遇不可求的一等号。', '守成即可，不必折腾；这类号码本身已有市场溢价，转手前请评估价值。'],
+    A: ['盘面偏吉，主力磁场落点正，数理亦得上格。', '现有配置足以支撑长期用，重点在把优势维度用足——强项不用等于没有。'],
+    B: ['吉凶相间，有明确强项也有明确漏点，属大多数号码的常态。', '不必换号。把弱项对应的行为习惯补上，比换号有效得多。'],
+    C: ['能量平铺，无大吉亦无大凶，主平顺而少助力。', '号码只是背景变量，此盘之下成败几乎全在人为。'],
+    D: ['盘面偏弱，凶星磁场占位较重或数理落空亡。', '可先做低成本调整（见化解建议），是否换号取决于弱项是否已实际影响生活。'],
+    E: ['数理与磁场双弱，传统上视为「耗」盘。', '若近年确实诸事不顺，换号是选项之一；但先排除健康、财务与关系上的现实成因，号码不该替它们背锅。'],
+  };
+  return V[g] || V.C;
+}
+
+function advice(dims, mg, fe, sl) {
+  const out = [];
+  const sorted = [...dims].sort((a, b) => a.v - b.v);
+  const weak = sorted.slice(0, 2);
+
+  const FIX = {
+    cai: '财运弱 → 强制储蓄前置（收入到账当日划走固定比例），账户与消费账户物理隔离；忌杠杆、忌替人担保、忌与人合伙不做账。',
+    shi: '事业弱 → 以「可验证的作品」代替「职位头衔」积累；每 18 个月做一次外部市场询价，避免被单一平台定价。',
+    qing: '感情弱 → 冲突当下不沉默，24 小时内必须把话说完；重要承诺落成文字，减少靠默契推断的部分。',
+    jian: '健康弱 → 固定作息锚点（同一时间睡 / 起），每年一次体检不可省；疲劳状态下禁止剧烈运动与长途驾驶。',
+    ren: '人际弱 → 减少多角关系与传话，重要沟通一对一；主动维护 5 个以内的强关系，胜过 50 个弱连接。',
+  };
+  for (const w of weak) out.push({ t: `${w.n}（${Math.round(w.v)} 分）为最弱项`, d: FIX[w.k] });
+
+  /* 五行化解 */
+  if (fe.missing.length) {
+    const M = fe.missing.map(m => `${m}（对应数字 ${Object.keys(FIVE).filter(d => FIVE[d].e === m).join('、')}）`).join('、');
+    out.push({ t: `五行缺 ${fe.missing.join('、')}`,
+      d: `缺 ${M}。传统化解：在车牌 / 门牌 / 密码 / 常用账号尾数中补入对应数字；方位与颜色按该五行取用。数理层面「缺」不等于「凶」，只表示该项能量需外部补足。` });
+  }
+
+  /* 凶星磁场化解 */
+  const bad = mg.groups.filter(g => g.info.lucky < 0);
+  if (bad.length >= 2) {
+    out.push({ t: `凶星磁场 ${bad.length} 组（${bad.map(g => g.info.n + g.pair).join('、')}）`,
+      d: '数字能量学的主张是「凶星非灾，是行为倾向」：绝命 → 决策前强制隔夜；五鬼 → 重要事项留书面与备份；祸害 → 少议论第三人；六煞 → 关系里设明确边界。把这四条当操作手册，比换号更直接。' });
+  }
+  if (mg.groups.some(g => g.info.g === 'zero')) {
+    out.push({ t: '盘中见 0（空亡）', d: '0 主隐藏与归零：暗财可得但明财易空，重要收益务必落到可查证的账户与合同上，不要停留在口头与聊天记录里。' });
+  }
+  if (sl.w <= 0.2) {
+    out.push({ t: `81 数理落「${sl.idx} · ${sl.n}」（${LEVEL_W[sl.w]}）`, d: `数理为「${sl.s}」，传统断语见上。这是号码的先天格，无法通过习惯改变——若此项与实际处境严重冲突，换号是唯一解；否则视为背景噪声即可。` });
+  }
+  return out;
+}
+
+/* ---------- ⑦ 汇总 ---------- */
+function analyze(raw) {
+  const v = validate(raw);
+  if (!v.ok) return v;
+  const num = v.num;
+  const sl = shuLi(num);
+  const mg = magnet(num);
+  const fe = fiveElement(num);
+  const pt = pattern(num);
+  const dims = profile(num, sl, mg, fe, pt);
+
+  /* 加权总分：磁场 34% / 数理 26% / 形态 22% / 五行 18% */
+  const total = clampN(
+    mg.score * 0.34 + sl.point * 0.26 + pt.score * 0.22 + fe.score * 0.18, 1, 99);
+  const g = grade(total);
+
+  return {
+    ok: true, num,
+    fmt: `${num.slice(0, 3)} ${num.slice(3, 7)} ${num.slice(7)}`,
+    carrier: carrierOf(num.slice(0, 3)),
+    shuli: sl, magnet: mg, five: fe, pattern: pt, dims,
+    total: Math.round(total * 10) / 10,
+    grade: g, verdict: verdict(total, g.grade),
+    advice: advice(dims, mg, fe, sl),
+    ts: Date.now(),
+  };
+}
+/* ======== share.js（块作用域）======== */
+{
+/* ---------- 分享成图 ---------- */
+/* 用 canvas 直接绘制（而不是把页面 SVG 光栅化）：SVG → Image → canvas 在部分 WebView
+   上会因 foreignObject / 外部字体而静默失败，直接绘制路径最可靠。 */
+const CARD_W = 540, CARD_H = 900;
+const CF = (w, s) => `${w} ${s}px "PingFang SC","Hiragino Sans GB","Heiti SC","Microsoft YaHei",sans-serif`;
+
+function rrect(g, x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r);
+  g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r);
+  g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+
+function wrapText(g, text, maxW) {
+  const out = [];
+  let line = '';
+  for (const ch of String(text)) {
+    if (g.measureText(line + ch).width > maxW && line) { out.push(line); line = ch; }
+    else line += ch;
+  }
+  if (line) out.push(line);
+  return out;
+}
+
+function drawShareCard(r, clamp) {
+  /* 倍率上限 2：3x 出图 1620×2700 约 1.4MB，微信等平台会二次压缩甚至拒收；
+     2x 得 1080×1800 约 0.6MB，清晰度足够且体积友好 */
+  const S = Math.min(2, Math.max(1, Math.ceil(window.devicePixelRatio || 2)));
+  const cv = document.createElement('canvas');
+  cv.width = CARD_W * S;
+  cv.height = CARD_H * S;
+  const g = cv.getContext('2d');
+  g.scale(S, S);
+
+  const GOLD = '#d9b877', GOLD2 = '#f4e0b0', DIM = '#9b93a8', DIM2 = '#8b83a0';
+  const LINE = '#2c2537';
+  const tone = r.total >= 69 ? '#63d392' : (r.total < 49 ? '#ea6f62' : GOLD);
+
+  /* 背景 */
+  const bg = g.createLinearGradient(0, 0, 0, CARD_H);
+  bg.addColorStop(0, '#181422'); bg.addColorStop(0.45, '#100e17'); bg.addColorStop(1, '#0b0a10');
+  g.fillStyle = bg; g.fillRect(0, 0, CARD_W, CARD_H);
+  const gl = g.createRadialGradient(CARD_W / 2, -40, 20, CARD_W / 2, -40, 460);
+  gl.addColorStop(0, 'rgba(217,184,119,.22)'); gl.addColorStop(1, 'rgba(217,184,119,0)');
+  g.fillStyle = gl; g.fillRect(0, 0, CARD_W, 440);
+
+  const cx = CARD_W / 2;
+
+  /* 顶部品牌 */
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = CF(400, 26); g.fillStyle = GOLD;
+  g.fillText('☯\ufe0e', cx, 46);
+  g.font = CF(700, 29); g.fillStyle = GOLD2;
+  g.fillText('号码玄机', cx, 88);
+  g.font = CF(400, 12.5); g.fillStyle = DIM2;
+  g.fillText('手 机 号 码 吉 凶 测 算', cx, 116);
+
+  /* 号码 */
+  g.font = CF(700, 33); g.fillStyle = GOLD2;
+  g.fillText(r.fmt, cx, 176);
+  g.font = CF(400, 12); g.fillStyle = DIM2;
+  g.fillText(r.carrier, cx, 205);
+
+  g.strokeStyle = LINE; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(40, 232); g.lineTo(CARD_W - 40, 232); g.stroke();
+
+  /* 分数环 */
+  const RCX = 138, RCY = 330, RR = 66;
+  g.lineWidth = 11; g.lineCap = 'round';
+  g.strokeStyle = '#241f30';
+  g.beginPath(); g.arc(RCX, RCY, RR, 0, Math.PI * 2); g.stroke();
+  g.strokeStyle = tone;
+  g.shadowColor = tone; g.shadowBlur = 16;
+  g.beginPath();
+  g.arc(RCX, RCY, RR, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * clamp(r.total, 0, 100) / 100);
+  g.stroke();
+  g.shadowBlur = 0;
+  g.textAlign = 'center';
+  g.font = CF(700, 44); g.fillStyle = tone;
+  g.fillText(String(Math.round(r.total)), RCX, RCY - 4);
+  g.font = CF(400, 11.5); g.fillStyle = DIM2;
+  g.fillText('综合评分', RCX, RCY + 30);
+
+  /* 右侧：评级 + 判词 */
+  const LX = 232, LW = CARD_W - LX - 40;
+  g.textAlign = 'left';
+  const bTxt = `${r.grade.grade} · ${r.grade.qian}`;
+  g.font = CF(700, 17);
+  const bW = g.measureText(bTxt).width;
+  g.fillStyle = 'rgba(255,255,255,.06)';
+  rrect(g, LX, 268, bW + 26, 30, 15); g.fill();
+  g.strokeStyle = tone; g.lineWidth = 1; rrect(g, LX, 268, bW + 26, 30, 15); g.stroke();
+  g.fillStyle = tone; g.textBaseline = 'middle';
+  g.fillText(bTxt, LX + 13, 284);
+
+  g.font = CF(400, 13);
+  let yy = 322;
+  for (const para of [r.verdict[0], r.verdict[1]]) {
+    g.fillStyle = '#bdb6c6';
+    for (const ln of wrapText(g, para, LW)) { g.fillText(ln, LX, yy); yy += 20; }
+    yy += 7;
+  }
+
+  g.beginPath(); g.moveTo(40, 452); g.lineTo(CARD_W - 40, 452); g.stroke();
+
+  /* 五维雷达 */
+  const RX = cx, RY = 620, RAD = 92;
+  const N = r.dims.length;
+  const pt = (i, f) => {
+    const a = -Math.PI / 2 + i * 2 * Math.PI / N;
+    return [RX + Math.cos(a) * RAD * f, RY + Math.sin(a) * RAD * f];
+  };
+  g.strokeStyle = '#3a3346'; g.lineWidth = 1;
+  for (const f of [1, 0.75, 0.5, 0.25]) {
+    g.beginPath();
+    for (let i = 0; i < N; i++) { const [x, y] = pt(i, f); i ? g.lineTo(x, y) : g.moveTo(x, y); }
+    g.closePath(); g.stroke();
+  }
+  for (let i = 0; i < N; i++) {
+    const [x, y] = pt(i, 1);
+    g.beginPath(); g.moveTo(RX, RY); g.lineTo(x, y); g.stroke();
+  }
+  g.beginPath();
+  r.dims.forEach((d, i) => { const [x, y] = pt(i, clamp(d.v, 5, 100) / 100); i ? g.lineTo(x, y) : g.moveTo(x, y); });
+  g.closePath();
+  g.fillStyle = 'rgba(217,184,119,.20)'; g.fill();
+  g.strokeStyle = GOLD; g.lineWidth = 2; g.stroke();
+  r.dims.forEach((d, i) => {
+    const [x, y] = pt(i, clamp(d.v, 5, 100) / 100);
+    g.beginPath(); g.arc(x, y, 3.4, 0, Math.PI * 2); g.fillStyle = GOLD2; g.fill();
+    const [lx, ly] = pt(i, 1.30);
+    g.textAlign = 'center';
+    g.font = CF(400, 12.5); g.fillStyle = DIM;
+    g.fillText(d.n, lx, ly - 8);
+    g.font = CF(700, 14); g.fillStyle = d.v >= 70 ? '#63d392' : (d.v < 50 ? '#ea6f62' : GOLD2);
+    g.fillText(String(Math.round(d.v)), lx, ly + 9);
+  });
+
+  g.strokeStyle = LINE;
+  g.beginPath(); g.moveTo(40, 792); g.lineTo(CARD_W - 40, 792); g.stroke();
+
+  /* 四轴 */
+  const axes = [['磁场', r.magnet.score], ['数理', r.shuli.point], ['形态', r.pattern.score], ['五行', r.five.score]];
+  axes.forEach(([n, v], i) => {
+    const w = (CARD_W - 80 - 3 * 14) / 4;
+    const x = 40 + i * (w + 14);
+    g.textAlign = 'left';
+    g.font = CF(400, 11.5); g.fillStyle = DIM2;
+    g.fillText(n, x, 820);
+    g.font = CF(700, 17); g.fillStyle = GOLD2;
+    g.fillText(String(Math.round(v)), x, 843);
+    g.fillStyle = '#241f30';
+    rrect(g, x, 856, w, 5, 2.5); g.fill();
+    g.fillStyle = GOLD;
+    rrect(g, x, 856, Math.max(3, w * clamp(v, 0, 100) / 100), 5, 2.5); g.fill();
+  });
+
+  g.textAlign = 'center';
+  g.font = CF(600, 13); g.fillStyle = GOLD;
+  g.fillText('laicai.us.ci', cx, 874);
+  g.font = CF(400, 10.5); g.fillStyle = '#8b83a0';
+  g.fillText('传统民俗数理 · 文化娱乐参考 · 不构成任何决策建议', cx, 893);
+  return cv;
+}
+
+function dataURLtoBlob(durl) {
+  const [head, b64] = durl.split(',');
+  const mime = /:(.*?);/.exec(head)[1];
+  const bin = atob(b64);
+  const u8 = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return new Blob([u8], { type: mime });
+}
+
+/* 分享不可用时的兜底：弹层展示图片，引导长按保存 */
+function showImageModal($, url, hint) {
+  let m = $('#img-modal');
+  if (!m) {
+    m = document.createElement('div');
+    m.id = 'img-modal';
+    m.className = 'modal';
+    m.setAttribute('role', 'dialog');
+    m.setAttribute('aria-modal', 'true');
+    m.setAttribute('aria-label', '测算结果分享图');
+    m.innerHTML = `<div class="modal-bg"></div><div class="modal-inner">
+      <img id="img-modal-pic" alt="测算结果分享图">
+      <p class="modal-hint" id="img-modal-hint"></p>
+      <button class="btn-sub" id="img-modal-close">关闭</button></div>`;
+    document.body.appendChild(m);
+    m.querySelector('.modal-bg').addEventListener('click', () => m.classList.remove('on'));
+    m.querySelector('#img-modal-close').addEventListener('click', () => m.classList.remove('on'));
+  }
+  m.querySelector('#img-modal-pic').src = url;
+  m.querySelector('#img-modal-hint').textContent = hint || '';
+  m.classList.add('on');
+}
+
+function initShare(deps) {
+  const { getLast, $, clamp, copyText, plainText } = deps;
+  return async function shareCard() {
+  const LAST = getLast();
+  if (!LAST) return;
+  const tip = $('#copy-tip');
+  const say = m => { if (tip) tip.textContent = m; };
+  say('正在生成图片…');
+  let cv;
+  try {
+    cv = drawShareCard(LAST, clamp);
+  } catch (e) {
+    say('生成图片失败，已改为复制文字结果');
+    const ok = await copyText(plainText(LAST));
+    say(ok ? '✓ 已复制文字结果' : '生成与复制均失败，请长按页面选择文字');
+    return;
+  }
+
+  const fname = `号码玄机-${LAST.num}.png`;
+  const shareTitle = `${LAST.grade.qian} · ${Math.round(LAST.total)} 分`;
+  const shareText = `我的手机号测算：${LAST.grade.grade} 级 · ${LAST.grade.qian}｜${Math.round(LAST.total)} 分`;
+  await exportCanvasImage(cv, fname, shareTitle, shareText, { $, say });
+  };
+}
+
+/* ---------- 对比成图 ----------
+   "帮我选号"天然是社交场景：对比表是最该被分享的东西。
+   布局：每号一列（分数卡 + 迷你雷达），一眼看出形状差异，细节表留在站内。 */
+const CMP_W = 720, CMP_H = 870;
+const CMP_COLORS = ['#d9b877', '#63d392', '#7fb3e8', '#e8a0b0'];
+
+function cmpRadar(g, cx, cy, R, dims, color, clamp) {
+  const n = dims.length;
+  const pt = (i, f) => {
+    const a = -Math.PI / 2 + i * 2 * Math.PI / n;
+    return [cx + Math.cos(a) * R * f, cy + Math.sin(a) * R * f];
+  };
+  g.strokeStyle = '#332c42'; g.lineWidth = 1;
+  for (const f of [1, 0.75, 0.5, 0.25]) {
+    g.beginPath();
+    for (let i = 0; i < n; i++) { const [x, y] = pt(i, f); i ? g.lineTo(x, y) : g.moveTo(x, y); }
+    g.closePath(); g.stroke();
+  }
+  for (let i = 0; i < n; i++) { const [x, y] = pt(i, 1); g.beginPath(); g.moveTo(cx, cy); g.lineTo(x, y); g.stroke(); }
+  g.beginPath();
+  dims.forEach((v, i) => { const [x, y] = pt(i, clamp(v, 5, 100) / 100); i ? g.lineTo(x, y) : g.moveTo(x, y); });
+  g.closePath();
+  g.fillStyle = color + '3d'; g.fill();
+  g.strokeStyle = color; g.lineWidth = 2; g.stroke();
+  g.fillStyle = color;
+  dims.forEach((v, i) => { const [x, y] = pt(i, clamp(v, 5, 100) / 100); g.beginPath(); g.arc(x, y, 2.6, 0, Math.PI * 2); g.fill(); });
+  const DN = ['财', '事', '情', '健', '人'];
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = CF(400, 10); g.fillStyle = '#9b93a8';
+  for (let i = 0; i < n; i++) { const [x, y] = pt(i, 1.34); g.fillText(DN[i], x, y); }
+}
+
+function drawCompareCard(list, verdict, clamp) {
+  const S = Math.min(2, Math.max(1, Math.ceil(window.devicePixelRatio || 2)));
+  const cv = document.createElement('canvas');
+  cv.width = CMP_W * S; cv.height = CMP_H * S;
+  const g = cv.getContext('2d');
+  g.scale(S, S);
+
+  const N = list.length;
+  const PAD = 40, GAP = 14;
+  const colW = (CMP_W - PAD * 2 - (N - 1) * GAP) / N;
+
+  const bg = g.createLinearGradient(0, 0, 0, CMP_H);
+  bg.addColorStop(0, '#181422'); bg.addColorStop(0.45, '#100e17'); bg.addColorStop(1, '#0b0a10');
+  g.fillStyle = bg; g.fillRect(0, 0, CMP_W, CMP_H);
+  const gl = g.createRadialGradient(CMP_W / 2, -30, 20, CMP_W / 2, -30, 420);
+  gl.addColorStop(0, 'rgba(217,184,119,.20)'); gl.addColorStop(1, 'rgba(217,184,119,0)');
+  g.fillStyle = gl; g.fillRect(0, 0, CMP_W, 400);
+
+  /* 头部 */
+  const cx = CMP_W / 2;
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = CF(700, 27); g.fillStyle = '#f4e0b0';
+  g.fillText('号码对比', cx, 58);
+  g.font = CF(400, 12.5); g.fillStyle = '#9b93a8';
+  g.fillText(`☯\ufe0e 号码玄机 · ${N} 个候选`, cx, 88);
+
+  g.strokeStyle = '#2c2537'; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(PAD, 118); g.lineTo(CMP_W - PAD, 118); g.stroke();
+
+  /* 分数卡（按总分降序） */
+  const numFs = N >= 4 ? 11.5 : 13;
+  list.forEach((x, i) => {
+    const color = CMP_COLORS[i % CMP_COLORS.length];
+    const x0 = PAD + i * (colW + GAP);
+    g.fillStyle = 'rgba(255,255,255,.05)';
+    rrect(g, x0, 142, colW, 148, 12); g.fill();
+    g.fillStyle = color;
+    rrect(g, x0, 142, colW, 4, 2); g.fill();
+
+    g.fillStyle = color;
+    rrect(g, x0 + colW / 2 - 30, 158, 60, 20, 10); g.fill();
+    g.font = CF(700, 12); g.fillStyle = '#1c1508';
+    g.fillText(`${x.g} · ${x.luck}`, x0 + colW / 2, 168);
+
+    g.font = CF(700, 30); g.fillStyle = '#f4e0b0';
+    g.fillText(String(Math.round(x.total)), x0 + colW / 2, 208);
+    g.font = CF(400, 10.5); g.fillStyle = '#8b83a0';
+    g.fillText('综合评分', x0 + colW / 2, 236);
+
+    g.font = CF(600, numFs); g.fillStyle = '#d9b877';
+    g.fillText(fmtFull(x.num), x0 + colW / 2, 268);
+  });
+
+  g.strokeStyle = '#2c2537';
+  g.beginPath(); g.moveTo(PAD, 316); g.lineTo(CMP_W - PAD, 316); g.stroke();
+
+  /* 迷你雷达（按加入顺序，颜色与列表/页内一致） */
+  const RY = 470, R = Math.min(colW * 0.36, 96);
+  list.forEach((x, i) => {
+    const color = CMP_COLORS[i % CMP_COLORS.length];
+    const cx2 = PAD + i * (colW + GAP) + colW / 2;
+    cmpRadar(g, cx2, RY, R, x.dims, color, clamp);
+    g.font = CF(600, numFs); g.fillStyle = color;
+    g.fillText(fmtFull(x.num), cx2, RY + R + 26);
+  });
+
+  g.strokeStyle = '#2c2537';
+  g.beginPath(); g.moveTo(PAD, RY + R + 52); g.lineTo(CMP_W - PAD, RY + R + 52); g.stroke();
+
+  /* 各维最强（并列都标） */
+  const DIMN = ['财运', '事业', '感情', '健康', '人际'];
+  const MARK = ['①', '②', '③', '④'];
+  const winners = DIMN.map((_, d) => {
+    let mx = -1;
+    list.forEach(x => { const v = (x.dims || [])[d] ?? -1; if (v > mx) mx = v; });
+    return list.map((x, i) => (((x.dims || [])[d] ?? -1) === mx ? MARK[i] : '')).join('');
+  });
+  let wy = RY + R + 84;
+  g.font = CF(400, 12.5); g.fillStyle = '#8b83a0';
+  g.fillText('各维最强', cx, wy); wy += 26;
+  g.font = CF(600, 13.5);
+  const parts = DIMN.map((n, d) => `${n} ${winners[d]}`).join('   ');
+  g.fillStyle = '#f4e0b0';
+  g.fillText(parts, cx, wy); wy += 30;
+
+  /* 结论（来自 buildTable，与页内一致） */
+  g.font = CF(400, 12.5); g.fillStyle = '#bdb6c6';
+  for (const ln of wrapText(g, verdict.summary, CMP_W - PAD * 2)) { g.fillText(ln, cx, wy); wy += 20; }
+  g.fillStyle = '#9b93a8';
+  for (const ln of wrapText(g, verdict.sub, CMP_W - PAD * 2)) { g.fillText(ln, cx, wy); wy += 20; }
+
+  g.textAlign = 'center';
+  g.font = CF(600, 13); g.fillStyle = '#d9b877';
+  g.fillText('laicai.us.ci', cx, CMP_H - 40);
+  g.font = CF(400, 10.5); g.fillStyle = '#8b83a0';
+  g.fillText('传统民俗数理 · 文化娱乐参考', cx, CMP_H - 18);
+  return cv;
+}
+
+/* 出图后的统一链路：系统分享(带文件) → 下载 → 弹层长按保存。
+   结果卡与对比卡共用，避免两条降级路径日后改不同步。 */
+async function exportCanvasImage(cv, fname, title, text, io) {
+  const { $, say } = io;
+  /* 不用 cv.toBlob：其回调在部分 WebView 里可能永不触发（实测把整个流程挂死，
+     toast 停在"正在生成…"不再前进）。toDataURL 是同步 API，先取数据 URL
+     再转 Blob，路径确定、无回调依赖。 */
+  const durl = cv.toDataURL('image/png');
+  const blob = dataURLtoBlob(durl);
+  const url = URL.createObjectURL(blob);
+  const file = new File([blob], fname, { type: 'image/png' });
+
+  /* navigator.share 要求「用户激活」。激活过期时它不按规范抛 NotAllowedError，
+     而是可能永久挂起（实测：toast 停在初始文案、整个流程卡死）。
+     双保险：① 无激活直接跳过系统分享走降级；② 有激活也加超时赛跑兜底。 */
+  const fresh = !navigator.userActivation || navigator.userActivation.isActive;
+  if (fresh && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await Promise.race([
+        navigator.share({ files: [file], title, text }),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('share-timeout')), 10000))
+      ]);
+      say('✓ 已唤起系统分享');
+      return;
+    } catch (e) {
+      if (e && e.name === 'AbortError') { say('已取消分享'); return; }
+    }
+  }
+  try {
+    const a = document.createElement('a');
+    a.href = url; a.download = fname;
+    document.body.appendChild(a); a.click(); a.remove();
+    say('✓ 已生成图片，若未自动下载请改用长按保存');
+  } catch (e) { /* 继续走兜底 */ }
+  showImageModal($, url, '长按图片可保存到相册');
+  say('已生成分享图 · 长按图片保存');
+}
+globalThis.__share = { initShare, drawCompareCard, exportCanvasImage };
+}
+/* ======== compare.js（块作用域）======== */
+{
+/* compare.js · 多号对比
+   用途：正在挑号的人往往手头有 2–4 个候选，逐个测完却无法并排比较。
+   本模块把结果并排成表，逐行标出最优/最差，并给出一句话结论。
+
+   设计：snap() 与 buildTable() 是纯函数（不碰 DOM），因此可在 node 下直接单测；
+   initCompare() 只负责把它们接到界面上。
+   依赖注入（避免跨模块共享作用域）：$ / esc / analyze / toast
+*/
+
+const CKEY = 'hl_cmp';
+const MAX = 4;
+
+/* 评级是有序的（S>A>B>C>D>E），映射成序数才能正确比较高低；
+   尾号磁场／最旺五行／尾号数字属分类值，无高低之分，故不给 v、不参与高亮。 */
+const GRADE_RANK = { S: 6, A: 5, B: 4, C: 3, D: 2, E: 1 };
+
+/* 全站统一 3-4-4 读法（唯一实现在 engine.js，此处转发以维持既有导入路径） */
+
+const ROWS = [
+  { t: '综合评分', f: x => Math.round(x.total), hi: true, big: true },
+  { t: '评级', f: x => `${x.g} · ${x.luck}`, v: x => GRADE_RANK[x.g] || 0, hi: true },
+  { t: '数字磁场', f: x => Math.round(x.mg), hi: true },
+  { t: '81 数理', f: x => `${x.slIdx} ${x.slName}`, v: x => x.sl, hi: true },
+  { t: '号码形态', f: x => Math.round(x.pt), hi: true },
+  { t: '河图五行', f: x => Math.round(x.wx), hi: true },
+  { t: 'sep', t2: '五维画像' },
+  { t: '财运', f: x => x.dims[0], hi: true },
+  { t: '事业', f: x => x.dims[1], hi: true },
+  { t: '感情', f: x => x.dims[2], hi: true },
+  { t: '健康', f: x => x.dims[3], hi: true },
+  { t: '人际', f: x => x.dims[4], hi: true },
+  { t: 'sep', t2: '号码特征' },
+  { t: '尾号磁场', f: x => x.tailGi || '—' },
+  { t: '尾号数字', f: x => x.tail },
+  { t: '最旺五行', f: x => x.dominant },
+  { t: '五行缺失', f: x => x.missing.length ? x.missing.join('、') : '不缺', v: x => x.missing.length, lo: true },
+  { t: '吉星特征', f: x => x.feats + ' 项', v: x => x.feats, hi: true }
+];
+
+/* ---------- 快照：只存表格需要的字段 ---------- */
+function snap(r) {
+  const gi = k => (r.magnet.groups.find(g => g.info.g === k) || {}).pair || '';
+  const order = ['tiany', 'yinian', 'shengqi', 'fuwei', 'jueming', 'wugui', 'liusha', 'huohai'];
+  const tai = r.magnet.groups[r.magnet.groups.length - 1];
+  return {
+    num: r.num,
+    total: r.total,
+    g: r.grade.grade, qian: r.grade.qian, luck: r.grade.luck,
+    mg: r.magnet.score, sl: r.shuli.point, pt: r.pattern.score, wx: r.five.score,
+    dims: r.dims.map(d => Math.round(d.v)),
+    slIdx: r.shuli.idx, slName: r.shuli.n,
+    tail: r.num[10],
+    tailGi: (tai.info && tai.info.n) || '',
+    bestGi: order.map(gi).filter(Boolean)[0] || '',
+    missing: r.five.missing,
+    dominant: r.five.dominant,
+    feats: r.pattern.feats.filter(f => f.k === 'good').length,
+    ts: Date.now()
+  };
+}
+
+/* ---------- 表格模型（纯函数，可在 node 下单测） ---------- */
+function buildTable(list) {
+  const N = list.length;
+  const rows = [];
+
+  for (const row of ROWS) {
+    if (row.t === 'sep') { rows.push({ sep: row.t2 }); continue; }
+
+    /* 逐格包一层：任一快照字段缺失只让该格显示占位，不让整表崩掉 */
+    const cellSafe = (x, fn) => { try { return fn(x); } catch (e) { return null; } };
+    const vals = list.map(x => cellSafe(x, () => row.v ? row.v(x)
+      : (typeof row.f(x) === 'number' ? row.f(x) : null)));
+
+    let best = null, worst = null;
+    if (row.hi || row.lo) {
+      const nums = vals.filter(v => typeof v === 'number');
+      if (nums.length >= 2 && Math.max(...nums) !== Math.min(...nums)) {
+        best = row.hi ? Math.max(...nums) : Math.min(...nums);
+        worst = row.hi ? Math.min(...nums) : Math.max(...nums);
+      }
+    }
+
+    rows.push({
+      label: row.t, big: !!row.big,
+      cells: list.map((x, i) => {
+        /* 必须显式判 null：无数值可比时 best/worst 为 null，
+           而该类行的 vals[i] 也是 null，直接判等会把整行亮成「最优」 */
+        const cls = (best !== null && vals[i] === best) ? 'best'
+          : (worst !== null && vals[i] === worst) ? 'worst' : '';
+        return { text: String(cellSafe(x, row.f) ?? '—'), cls };
+      })
+    });
+  }
+
+  /* 结论：综合分最高者 */
+  const top = [...list].sort((a, b) => b.total - a.total);
+  const gap = top.length > 1 ? (top[0].total - top[1].total) : 0;
+  const dimAt = (x, i) => (Array.isArray(x.dims) && Number.isFinite(x.dims[i]) ? x.dims[i] : -1);
+  const dimBest = [0, 1, 2, 3, 4].map(i => [...list].sort((a, b) => dimAt(b, i) - dimAt(a, i))[0]);
+  const names = ['财运', '事业', '感情', '健康', '人际'];
+
+  const summary = gap >= 5
+    ? `「${fmtFull(top[0].num)}」综合领先 ${gap.toFixed(1)} 分，差距明确。`
+    : gap > 0
+      ? `「${fmtFull(top[0].num)}」仅领先 ${gap.toFixed(1)} 分，${top.length > 2 ? '前两名' : '两者'}接近，建议按单维强弱取舍。`
+      : '几个号码综合分持平，按你最看重的维度来选。';
+  const strong = names.filter((n, i) => dimBest[i].num === top[0].num);
+
+  return {
+    keys: list.map(x => fmtFull(x.num)),
+    rows,
+    verdict: {
+      summary,
+      sub: strong.length
+        ? `「${fmtFull(top[0].num)}」在你最看重的 ${strong.join('、')} 上也是最强。`
+        : '但单维最强项分散在其它号码上，没有全面占优者。',
+      note: '分数差异在 2 分以内基本属噪声（同一体系的舍入与权重产物），不必据此纠结。'
+    }
+  };
+}
+
+/* ---------- 快照有效性 ----------
+   快照必须字段齐备才可用。
+   必要性：版本迭代会改变快照字段，用户 localStorage 里可能残留旧版数据；
+   残缺快照一旦进入 buildTable，会让对比表直接抛异常、点了按钮毫无反应（实测过）。 */
+const numArr = (v, n) => Array.isArray(v) && v.length === n && v.every(x => Number.isFinite(x));
+
+const isSnapshot = x => !!x && typeof x === 'object'
+  && typeof x.num === 'string' && /^1\d{10}$/.test(x.num)
+  && Number.isFinite(x.total)
+  && typeof x.g === 'string' && typeof x.luck === 'string'
+  && [x.mg, x.sl, x.pt, x.wx, x.slIdx, x.feats].every(Number.isFinite)
+  && numArr(x.dims, 5)
+  && typeof x.slName === 'string' && typeof x.tail === 'string'
+  && typeof x.tailGi === 'string' && typeof x.dominant === 'string'
+  && Array.isArray(x.missing);
+
+/* 读入任意来源（可能畸形）的对比列表 → 干净的快照数组。纯函数，可单测。 */
+function sanitizeList(arr) {
+  return Array.isArray(arr) ? arr.filter(isSnapshot).slice(0, MAX) : [];
+}
+
+/* shareCompare(list, verdict)：由 app 注入（对比成图在 share.js，避免模块反向依赖） */
+function initCompare({ $, esc, analyze, toast, shareCompare }) {
+  let list = read();
+
+  function read() {
+    try {
+      return sanitizeList(JSON.parse(localStorage.getItem(CKEY) || '[]'));
+    } catch (e) { return []; }   /* 畸形 JSON（用户手改 / 旧版本 / 存储损坏）一律当空 */
+  }
+  function write() {
+    try { localStorage.setItem(CKEY, JSON.stringify(list)); } catch (e) { /* 隐私模式静默 */ }
+  }
+
+  const has = num => list.some(x => x.num === num);
+
+  function add(r) {
+    if (!r || !r.ok) return;
+    if (has(r.num)) { toast('该号码已在对比中'); return; }
+    if (list.length >= MAX) { toast(`最多对比 ${MAX} 个号码，请先移除一个`); return; }
+    list.push(snap(r));
+    write(); renderDock();
+    toast(`已加入对比（${list.length}/${MAX}）`);
+  }
+
+  function remove(num) {
+    list = list.filter(x => x.num !== num);
+    write(); renderDock();
+    if (list.length < 2) close(); else renderModal();
+  }
+
+  function clear() {
+    list = [];
+    write(); renderDock(); close();
+  }
+
+  /* ---------- 底部对比条 ---------- */
+  function renderDock() {
+    let dock = $('#cmp-dock');
+    if (!list.length) {
+      if (dock) dock.classList.remove('on');
+      document.body.classList.remove('has-dock');
+      return;
+    }
+    if (!dock) {
+      dock = document.createElement('div');
+      dock.id = 'cmp-dock';
+      dock.className = 'cmp-dock';
+      dock.innerHTML = `<div class="cmp-chips" id="cmp-chips"></div>
+        <div class="cmp-ops">
+          <button class="cmp-btn ghost" id="cmp-clear">清空</button>
+          <button class="cmp-btn" id="cmp-open">对比</button>
+        </div>`;
+      document.body.appendChild(dock);
+      dock.querySelector('#cmp-clear').addEventListener('click', clear);
+      dock.querySelector('#cmp-open').addEventListener('click', openCompare);
+    }
+    dock.querySelector('#cmp-chips').innerHTML = list.map(x => `
+      <span class="cmp-chip" data-num="${esc(x.num)}">
+        <b>${esc(fmtFull(x.num))}</b><i>${Math.round(x.total)}</i>
+        <em class="cmp-x" data-x="${esc(x.num)}" role="button" aria-label="移除">×</em>
+      </span>`).join('');
+    dock.querySelectorAll('.cmp-x').forEach(el => el.addEventListener('click', ev => {
+      ev.stopPropagation(); remove(el.getAttribute('data-x'));
+    }));
+    dock.classList.add('on');
+    document.body.classList.add('has-dock');
+  }
+
+  /* ---------- 对比表 ---------- */
+  function renderModal() {
+    const m = $('#cmp-modal');
+    if (!m) return;
+    const N = list.length;
+    const { keys, rows, verdict } = buildTable(list);
+
+    let html = `<div class="cmp-scroll"><table class="cmp-table" style="--n:${N}">
+      <thead><tr><th class="cmp-lb">项目</th>${
+      keys.map((k, i) => `<th>
+        <span class="cmp-h-num">${esc(k)}</span>
+        <em class="cmp-h-x" data-x="${esc(list[i].num)}" role="button" aria-label="移除 ${esc(list[i].num)}">×</em>
+      </th>`).join('')}</tr></thead><tbody>`;
+
+    for (const r of rows) {
+      if (r.sep) {
+        html += `<tr class="cmp-sep"><th class="cmp-lb" colspan="${N + 1}">${esc(r.sep)}</th></tr>`;
+        continue;
+      }
+      html += `<tr><th class="cmp-lb">${esc(r.label)}</th>` + r.cells.map(c =>
+        `<td class="${r.big ? 'big ' : ''}${c.cls}">${esc(c.text)}</td>`).join('') + '</tr>';
+    }
+    html += '</tbody></table></div>';
+
+    html += `<div class="cmp-sum">
+      <p class="cmp-verdict">${esc(verdict.summary)}</p>
+      <p class="cmp-verdict sub">${esc(verdict.sub)}</p>
+      <p class="cmp-note">${esc(verdict.note)}</p>
+    </div>`;
+
+    m.querySelector('#cmp-body').innerHTML = html;
+    m.querySelectorAll('[data-x]').forEach(el =>
+      el.addEventListener('click', () => remove(el.getAttribute('data-x'))));
+  }
+
+  function openCompare() {
+    if (list.length < 2) { toast('至少加入 2 个号码才能对比'); return; }
+    let m = $('#cmp-modal');
+    if (!m) {
+      m = document.createElement('div');
+      m.id = 'cmp-modal';
+      m.className = 'modal';
+      m.setAttribute('role', 'dialog');
+      m.setAttribute('aria-modal', 'true');
+      m.setAttribute('aria-label', '号码对比');
+      m.innerHTML = `<div class="modal-bg"></div>
+        <div class="modal-inner cmp-inner">
+          <h3 class="cmp-title">号码对比</h3>
+          <div id="cmp-body"></div>
+          <button class="btn-sub" id="cmp-share">分享对比图</button>
+          <button class="btn-sub" id="cmp-close">关闭</button>
+        </div>`;
+      document.body.appendChild(m);
+      m.querySelector('.modal-bg').addEventListener('click', close);
+      m.querySelector('#cmp-close').addEventListener('click', close);
+      m.querySelector('#cmp-share').addEventListener('click', () => {
+        if (!shareCompare) { toast('对比图功能未就绪'); return; }
+        shareCompare(list, buildTable(list).verdict);
+      });
+    }
+    renderModal();
+    m.classList.add('on');
+  }
+  function close() { const m = $('#cmp-modal'); if (m) m.classList.remove('on'); }
+
+  /* ---------- 历史记录里的快捷加入 ---------- */
+  /* 覆盖"测过几个、事后想比"的场景 */
+  function syncHistoryChips() {
+    document.querySelectorAll('#hist-list .hrow').forEach(row => {
+      const num = row.getAttribute('data-num');
+      if (!num) return;
+      if (row.querySelector('.hrow-cmp')) return;
+      const b = document.createElement('em');
+      b.className = 'hrow-cmp' + (has(num) ? ' on' : '');
+      b.textContent = has(num) ? '✓' : '+';
+      b.setAttribute('role', 'button');
+      b.setAttribute('aria-label', '加入对比');
+      b.addEventListener('click', ev => {
+        ev.stopPropagation();
+        if (has(num)) {
+          remove(num); b.textContent = '+'; b.classList.remove('on'); return;
+        }
+        const r = analyze(num);
+        if (r && r.ok) { add(r); b.textContent = '✓'; b.classList.add('on'); }
+      });
+      row.appendChild(b);
+    });
+  }
+
+  renderDock();
+
+  return { add, remove, clear, has, syncHistoryChips, get list() { return list; } };
+}
+globalThis.__cmp = { initCompare };
+}
+/* ======== app.js ======== */
+const { initShare, drawCompareCard, exportCanvasImage } = globalThis.__share;
+const { initCompare } = globalThis.__cmp;
+/* app.js · 界面层（DOM + SVG，零 canvas） */
+
+
+
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+/* ---------- 背景罗盘刻度 ---------- */
+(function ticks() {
+  const g = $('#bgTicks'); if (!g) return;
+  let s = '';
+  for (let i = 0; i < 72; i++) {
+    const a = i * 5 * Math.PI / 180;
+    const long = i % 6 === 0;
+    const r1 = long ? 152 : 168, r2 = 188;
+    s += `<line x1="${(200 + Math.cos(a) * r1).toFixed(1)}" y1="${(200 + Math.sin(a) * r1).toFixed(1)}" x2="${(200 + Math.cos(a) * r2).toFixed(1)}" y2="${(200 + Math.sin(a) * r2).toFixed(1)}"/>`;
+  }
+  g.innerHTML = s;
+})();
+
+/* ---------- 八卦符号（起盘动画） ---------- */
+(function bagua() {
+  const el = $('#bagua'); if (!el) return;
+  const G = ['☰', '☱', '☲', '☳', '☴', '☵', '☶', '☷'];
+  el.innerHTML = G.map((c, i) => `<i style="--i:${i}">${c}</i>`).join('');
+})();
+
+/* ---------- 输入区 ---------- */
+const slots = $('#slots'), phone = $('#phone'), errBox = $('#err');
+const counter = $('#counter'), carrierChip = $('#carrier-chip'), goBtn = $('#go');
+let CUR = '';
+let BUSY = false;          // 起盘动画期间锁住输入，防止重入
+
+for (let i = 0; i < 11; i++) {
+  const d = document.createElement('div');
+  // 大陆手机号读法为 3-4-4（号段 3 位 + HLR 4 位 + 用户号 4 位），
+  // 分隔符必须落在第 3、7 个格子之后，才能和输入框/历史/结果里的 "138 0013 8000" 对齐
+  d.className = 'slot' + (i === 2 || i === 6 ? ' gap' : '');
+  slots.appendChild(d);
+}
+const slotEls = [...slots.children];
+
+function paint() {
+  slotEls.forEach((el, i) => {
+    const ch = CUR[i];
+    el.textContent = ch || '';
+    el.classList.toggle('on', !!ch);
+    el.classList.toggle('next', !ch && i === CUR.length);
+  });
+  counter.textContent = `${CUR.length} / 11`;
+  carrierChip.textContent = CUR.length >= 3 ? (validateCarrier(CUR.slice(0, 3)) || '未知 / 新号段') : '号段待识别';
+  carrierChip.classList.toggle('ghost', CUR.length < 3);
+}
+function validateCarrier(p) {
+  const c = carrierOf(p);
+  return c && c.indexOf('未知') < 0 ? c : null;
+}
+
+phone.addEventListener('input', () => {
+  /* 走 engine 的 normalizeInput：先剥国际区号（+86/0086/86）再截 11 位，
+     否则粘贴带区号的号码会被截成错的号码 */
+  const d = normalizeInput(phone.value);
+  CUR = d; phone.value = fmtInput(d); paint(); hideErr();
+});
+phone.addEventListener('focus', () => { if (!CUR) phone.placeholder = ''; });
+function fmtInput(d) {
+  if (d.length <= 3) return d;
+  if (d.length <= 7) return d.slice(0, 3) + ' ' + d.slice(3);
+  return d.slice(0, 3) + ' ' + d.slice(3, 7) + ' ' + d.slice(7);
+}
+slots.addEventListener('click', () => phone.focus());
+
+/* 轻量提示：对比条操作需要即时反馈 */
+let _toastT = null;
+function toast(msg) {
+  let el = $('#toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toast';
+    el.setAttribute('role', 'status');
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add('on');
+  clearTimeout(_toastT);
+  _toastT = setTimeout(() => el.classList.remove('on'), 1900);
+}
+
+function showErr(m) { errBox.textContent = m; errBox.classList.add('on'); }
+function hideErr() { errBox.classList.remove('on'); errBox.textContent = ''; }
+
+$('#clear').addEventListener('click', () => {
+  CUR = ''; phone.value = ''; paint(); hideErr(); phone.focus();
+});
+
+/* 随机号：真实存在的号段，避免生成无效号 */
+const SEGS = ['133', '135', '136', '138', '139', '150', '151', '152', '156', '158', '159',
+  '166', '176', '177', '178', '180', '182', '185', '186', '188', '189', '198', '199'];
+$('#random').addEventListener('click', () => {
+  let n = SEGS[Math.floor(Math.random() * SEGS.length)];
+  for (let i = 0; i < 8; i++) n += Math.floor(Math.random() * 10);
+  CUR = n; phone.value = fmtInput(n); paint(); hideErr();
+});
+
+/* ---------- 起盘 ---------- */
+const cast = $('#cast'), castStep = $('#castStep'), resultBox = $('#result');
+const STEPS = ['排数理 · 后四位取灵数…', '布磁场 · 八星两两分组…',
+  '定五行 · 河图纳甲分布…', '察号型 · 豹子顺子对子…', '合四轴 · 加权出盘…'];
+
+function runCast(num) {
+  if (BUSY) return;                     // 防重入：动画期间再点不会叠加 setInterval
+  BUSY = true;
+  goBtn.disabled = true; goBtn.classList.add('loading');
+  const rb = $('#random'), cl = $('#clear');
+  if (rb) rb.disabled = true;
+  if (cl) cl.disabled = true;
+  resultBox.innerHTML = ''; resultBox.hidden = true;
+  cast.hidden = false;
+  cast.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  let i = 0;
+  castStep.textContent = STEPS[0];
+  /* 用同步 setInterval + 固定步数，不依赖 rAF（WebView 下 rAF 可能停摆） */
+  const done = () => {
+    BUSY = false;
+    goBtn.disabled = false; goBtn.classList.remove('loading');
+    if (rb) rb.disabled = false;
+    if (cl) cl.disabled = false;
+  };
+  const timer = setInterval(() => {
+    i++;
+    if (i < STEPS.length) { castStep.textContent = STEPS[i]; return; }
+    clearInterval(timer);
+    cast.hidden = true;
+    render(analyze(num));
+    done();
+  }, 260);
+}
+
+goBtn.addEventListener('click', () => {
+  const v = validate(CUR || phone.value);
+  if (!v.ok) { showErr(v.err); return; }
+  hideErr();
+  runCast(v.num);
+});
+phone.addEventListener('keydown', e => { if (e.key === 'Enter') goBtn.click(); });
+
+/* ================= 渲染 ================= */
+const GRADE_CLS = { S: 'grade-S', A: 'grade-A', B: 'grade-B', C: 'grade-C', D: 'grade-D', E: 'grade-E' };
+const KIND_CLS = { good: 'good', bad: 'bad', neutral: 'neutral' };
+
+let LAST = null;
+
+/* ---------- 结果渲染 ---------- */
+function render(r) {
+  if (!r || !r.ok) { showErr(r ? r.err : '测算失败'); return; }
+  LAST = r;
+  const lv = numLevel(r.shuli.w);
+  const tone = r.total >= 69 ? 'good' : (r.total < 49 ? 'bad' : 'neu');
+
+  /* 四轴分量 */
+  const axes = [
+    ['数字磁场', r.magnet.score, '34%'],
+    ['81 数理', r.shuli.point, '26%'],
+    ['号码形态', r.pattern.score, '22%'],
+    ['河图五行', r.five.score, '18%'],
+  ];
+
+  resultBox.innerHTML = `
+  <section class="card">
+    <div class="sum">
+      ${ring(r.total, tone)}
+      <div class="sum-r">
+        <div class="badges">
+          <span class="badge ${tone}">${esc(r.grade.grade)} · ${esc(r.grade.qian)}</span>
+          <span class="badge ${lvTone(r.shuli.w)}">数理${esc(lv)}</span>
+          <span class="badge">${esc(r.carrier)}</span>
+        </div>
+        <p class="phone-big">${esc(r.fmt)}</p>
+        <p class="verdict">${esc(r.verdict[0])}</p>
+        <p class="verdict sub2">${esc(r.verdict[1])}</p>
+      </div>
+    </div>
+    <div class="axes">
+      ${axes.map(([n, v, w]) => `
+        <div class="ax">
+          <div class="ax-h"><span>${n}</span><b>${Math.round(v)}</b><i>权重 ${w}</i></div>
+          <div class="bar"><i style="width:${clamp(v, 0, 100).toFixed(1)}%"></i></div>
+        </div>`).join('')}
+    </div>
+    <div class="acts">
+      <button class="btn-sub" id="copy">复制结果</button>
+      <button class="btn-sub" id="share">分享</button>
+      <button class="btn-sub" id="cmpadd">加入对比</button>
+      <button class="btn-sub" id="again">再测一个</button>
+    </div>
+    <p class="tip" id="copy-tip"></p>
+  </section>
+
+  <section class="card">
+    <div class="card-h"><span class="ci">貳</span><h2>五维画像</h2>
+      <span class="hint">财 / 事 / 情 / 健 / 人</span></div>
+    <div class="radar-wrap">${radar(r.dims)}</div>
+    ${r.dims.map(d => `
+      <div class="dim">
+        <div class="dim-h"><span class="dn">${esc(d.n)}</span>
+          <span class="dv ${d.v >= 70 ? 'good' : d.v < 50 ? 'bad' : ''}">${Math.round(d.v)}</span></div>
+        <div class="bar"><i class="${d.v >= 70 ? 'good' : d.v < 50 ? 'bad' : ''}" style="width:${clamp(d.v, 0, 100).toFixed(1)}%"></i></div>
+        <p class="dim-t">${esc(d.d)}</p>
+      </div>`).join('')}
+  </section>
+
+  <section class="card">
+    <div class="card-h"><span class="ci">叁</span><h2>81 数理灵数</h2>
+      <span class="hint">后 ${esc(String(r.shuli.last4).padStart(4, '0'))} ÷ 80</span></div>
+    <div class="shuli">
+      <div class="sl-n ${lvTone(r.shuli.w)}">${r.shuli.idx}</div>
+      <div class="sl-r">
+        <p class="sl-name">${esc(r.shuli.n)}<span class="lv ${lvTone(r.shuli.w)}">${esc(lv)}</span></p>
+        <p class="sl-s">${esc(r.shuli.s)}</p>
+        <p class="sl-calc">算法：后四位 <b>${esc(String(r.shuli.last4).padStart(4, '0'))}</b> ÷ 80，余数
+          <b>${r.shuli.idx}</b>${r.shuli.idx === 80 ? '（整除取 80）' : ''} → 查 81 数理表得「${esc(r.shuli.n)}」，
+          数理分 <b>${Math.round(r.shuli.point)}</b> / 100。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-h"><span class="ci">肆</span><h2>八星数字磁场</h2>
+      <span class="hint">磁场分 ${Math.round(r.magnet.score)}</span></div>
+    <p class="lead">去号段「${esc(r.num.slice(0, 3))}」后取 8 位两两分组，得 4 组磁场。越靠尾权重越大（1 / 1.2 / 1.5 / 2）。</p>
+    <div class="pairs">
+      ${r.magnet.groups.map((g, i) => pairChip(g, i)).join('')}
+    </div>
+    ${r.magnet.groups.map((g, i) => rowMagnet(g, i)).join('')}
+  </section>
+
+  <section class="card">
+    <div class="card-h"><span class="ci">伍</span><h2>河图五行</h2>
+      <span class="hint">五行分 ${Math.round(r.five.score)}</span></div>
+    <p class="lead">1/6 水 · 2/7 火 · 3/8 木 · 4/9 金 · 5/0 土</p>
+    <div class="digits">
+      ${r.num.split('').map(d => `<i class="dg ${FIVE[d].e}" title="${d} → ${FIVE[d].e}">${d}</i>`).join('')}
+    </div>
+    ${rowWuxing(r.five)}
+  </section>
+
+  <section class="card">
+    <div class="card-h"><span class="ci">陸</span><h2>号码形态</h2>
+      <span class="hint">形态分 ${Math.round(r.pattern.score)}</span></div>
+    ${r.pattern.feats.map(f => `
+      <div class="feat ${f.k}">
+        <div class="feat-h"><span class="dot"></span>${esc(f.t)}</div>
+        <p>${esc(f.d)}</p>
+      </div>`).join('')}
+  </section>
+
+  <section class="card">
+    <div class="card-h"><span class="ci">柒</span><h2>化解与建议</h2>
+      <span class="hint">按弱项生成</span></div>
+    ${r.advice.length ? r.advice.map(a => `
+      <div class="adv">
+        <div class="adv-h">${esc(a.t)}</div>
+        <p>${esc(a.d)}</p>
+      </div>`).join('') : '<p class="lead">此盘无明显弱项，无需特别化解。</p>'}
+    <p class="tip">以上为民俗数理推演，非事实判断。号码不决定命运，习惯才决定。</p>
+  </section>
+
+  <section class="card">
+    <div class="card-h"><span class="ci">捌</span><h2>选号推荐</h2>
+      <span class="hint">以 ${esc(r.num.slice(0, 3))} 为号段生成</span></div>
+    <div class="rec-opts" id="rec-opts">
+      <div class="rec-row"><span class="rl">补强</span><div class="chips">
+        <button class="chip" data-k="target" data-v="auto">自动补弱</button>
+        <button class="chip" data-k="target" data-v="all">综合</button>
+        <button class="chip" data-k="target" data-v="cai">财运</button>
+        <button class="chip" data-k="target" data-v="shi">事业</button>
+        <button class="chip" data-k="target" data-v="qing">感情</button>
+        <button class="chip" data-k="target" data-v="jian">健康</button>
+        <button class="chip" data-k="target" data-v="ren">人际</button>
+      </div></div>
+      <div class="rec-row"><span class="rl">号型</span><div class="chips">
+        <button class="chip" data-k="shape" data-v="any">不限</button>
+        <button class="chip" data-k="shape" data-v="baozi">豹子</button>
+        <button class="chip" data-k="shape" data-v="shunzi">顺子</button>
+        <button class="chip" data-k="shape" data-v="duizi">对子</button>
+        <button class="chip" data-k="shape" data-v="xunhuan">循环</button>
+      </div></div>
+      <div class="rec-row"><span class="rl">约束</span><div class="chips">
+        <button class="chip" id="rec-fill">五行补缺</button>
+        <button class="chip" id="rec-nofour">避开 4</button>
+      </div></div>
+    </div>
+    <div class="rec-grid" id="rec-grid"></div>
+    <div class="plan-bar">
+      <button class="btn-sub" id="plan-save">存为方案</button>
+      <button class="btn-sub ghost" id="plan-toggle">我的方案</button>
+    </div>
+    <div id="plan-list" hidden></div>
+    <p class="tip">推荐为本机即时生成的候选，能否办理以运营商号池为准；同号段可携号转网。选号看相对差异，不看绝对分数。</p>
+  </section>`;
+
+  resultBox.hidden = false;
+  resultBox.setAttribute('tabindex', '-1');
+  resultBox.setAttribute('aria-label', '测算结果');
+  bindActs();
+  bindRec();
+  bindPlans();
+  renderRec();
+  saveHist(r);
+  resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  /* 把焦点移到结果区：键盘/读屏用户不必从页首重新 tab 一遍 */
+  try { resultBox.focus({ preventScroll: true }); } catch (e) { }
+}
+
+function ring(v, tone) {
+  const C = 2 * Math.PI * 52;
+  const off = C * (1 - clamp(v, 0, 100) / 100);
+  return `<div class="ring ${tone}">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <circle class="rbg" cx="60" cy="60" r="52"/>
+      <circle class="rfg" cx="60" cy="60" r="52"
+        stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"
+        style="transform:rotate(-90deg);transform-origin:60px 60px"/>
+    </svg>
+    <div class="rv">${Math.round(v)}<small>综合</small></div>
+  </div>`;
+}
+
+function radar(dims) {
+  const cx = 110, cy = 104, R = 66, N = dims.length;
+  const pt = (i, r) => {
+    const a = -Math.PI / 2 + i * 2 * Math.PI / N;
+    return [(cx + Math.cos(a) * r).toFixed(1), (cy + Math.sin(a) * r).toFixed(1)];
+  };
+  let grid = '';
+  [0.25, 0.5, 0.75, 1].forEach(f => {
+    const p = dims.map((_, i) => pt(i, R * f).join(',')).join(' ');
+    grid += `<polygon class="rgrid" points="${p}"/>`;
+  });
+  const axes = dims.map((_, i) => {
+    const [x, y] = pt(i, R);
+    return `<line class="raxis" x1="${cx}" y1="${cy}" x2="${x}" y2="${y}"/>`;
+  }).join('');
+  const data = dims.map((d, i) => pt(i, R * clamp(d.v, 5, 100) / 100).join(',')).join(' ');
+  const dots = dims.map((d, i) => {
+    const [x, y] = pt(i, R * clamp(d.v, 5, 100) / 100);
+    return `<circle cx="${x}" cy="${y}" r="2.6"/>`;
+  }).join('');
+  const labs = dims.map((d, i) => {
+    const [x, y] = pt(i, R + 20);
+    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle">${esc(d.n)} ${Math.round(d.v)}</text>`;
+  }).join('');
+  return `<svg class="radar" viewBox="0 0 220 208">${grid}${axes}
+    <polygon class="rdata" points="${data}"/>${dots}${labs}</svg>`;
+}
+
+function pairChip(g, i) {
+  const gi = g.info.g, lucky = gi === 'zero' ? 0 : CIGROUP[gi].lucky;
+  const cls = lucky > 0 ? 'good' : lucky < 0 ? 'bad' : 'neu';
+  return `<div class="pc ${cls}">
+    <span class="pc-p">${esc(g.pair)}</span>
+    <span class="pc-n">${esc(gi === 'zero' ? g.info.n : CIGROUP[gi].n)}</span>
+    <span class="pc-w">权重 ${g.weight}</span></div>`;
+}
+
+function rowMagnet(g, i) {
+  const gi = g.info.g, G = CIGROUP[gi];
+  const lucky = gi === 'zero' ? 0 : G.lucky;
+  const cls = lucky > 0 ? 'good' : lucky < 0 ? 'bad' : 'neu';
+  const mods = [];
+  if (g.strong) mods.push('<span class="mod m5">含 5 · 强化 ×1.35</span>');
+  if (g.zero.length) mods.push(`<span class="mod m0">含 0 · 空亡 ×${g.zero.length > 1 ? '0.35' : '0.6'}</span>`);
+  const tier = g.info.tier
+    ? `<span class="mod mt">第${'一二三四'[g.info.tier - 1]}档强度 · 能量 ${g.info.w > 0 ? '+' : ''}${g.info.w}</span>`
+    : `<span class="mod mt">非八星对 · 能量 ${(g.info.w || 0) > 0 ? '+' : ''}${g.info.w || 0}</span>`;
+  const posName = ['起盘', '二盘', '三盘', '收尾'][i] || `第${i + 1}组`;
+  return `<div class="mag ${cls}">
+    <div class="mag-h">
+      <span class="mag-pair">${esc(g.pair)}</span>
+      <span class="mag-name">${esc(g.info.n || G.n)}${lucky > 0 ? '磁场' : (lucky < 0 ? '磁场' : '')}</span>
+      <span class="mag-tag ${cls}">${lucky > 0 ? '吉星' : lucky < 0 ? '凶星' : '中性'}</span>
+      <span class="mag-pos">${posName} · 权重 ${g.weight}</span>
+    </div>
+    <div class="mods">${tier}${mods.join('')}</div>
+    <p class="mag-d">${esc(G.d)}</p>
+    ${G.good ? `<p class="mag-gb"><b>逢之则</b>　${esc(G.good)}</p>` : ''}
+    ${G.bad ? `<p class="mag-gb warn"><b>忌</b>　${esc(G.bad)}</p>` : ''}
+    ${g.info.tag ? `<p class="mag-gb"><b>隐数</b>　${esc(g.info.tag)}　${esc(NUM[g.pair[0]] ? NUM[g.pair[0]].n : '')}</p>` : ''}
+  </div>`;
+}
+
+function rowWuxing(fe) {
+  const max = Math.max(1, ...WUXING_ORDER.map(k => fe.cnt[k]));
+  const bars = WUXING_ORDER.map(k => {
+    const c = fe.cnt[k], miss = c === 0;
+    return `<div class="wx ${k}${miss ? ' miss' : ''}">
+      <div class="wx-h"><span>${k}</span><b>${c}</b><i>${(c / fe.total * 100).toFixed(0)}%</i></div>
+      <div class="bar"><i style="width:${(c / max * 100).toFixed(1)}%"></i></div>
+      ${miss ? '<em>缺</em>' : ''}
+    </div>`;
+  }).join('');
+  const flow = fe.flow > 1.5 ? ['good', '流通有情', '相邻数字多为相生，气脉顺畅，主做事有接力、少内耗。']
+    : fe.flow < -1.5 ? ['bad', '克战较多', `相邻数字多见相克${fe.flowNote.length ? '（' + fe.flowNote.join('、') + '）' : ''}，主推进中阻力反复，宜先谋后动。`]
+      : ['', '生克平平', '相生相克大致抵消，气场中性，成败更多取决于人为。'];
+  const dom = WUXING_TEXT[fe.dominant];
+  return `
+    <div class="wx-grid">${bars}</div>
+    <div class="wx-sum">
+      <p><b>最旺</b>　${esc(fe.dominant)}（${fe.cnt[fe.dominant]} 位）· ${esc(dom.nature)}<br><span class="dim-t">${esc(dom.desc)}</span></p>
+      <p><b>最弱</b>　${esc(fe.weakest)}（${fe.cnt[fe.weakest]} 位）${fe.missing.length ? ` · 缺 ${fe.missing.join('、')}` : ''}</p>
+      <p><b>均衡度</b>　${Math.round(fe.evenness)} / 100　<b>流通度</b>　${Math.round(fe.flow * 10) / 10}</p>
+      <p class="flow ${flow[0]}"><b>${flow[1]}</b>　${esc(flow[2])}</p>
+    </div>`;
+}
+
+/* ---------- 数理等级色调（入参为权重 w，render 传的是 r.shuli.w） ---------- */
+function lvTone(w) { return w >= 0.8 ? 'good' : (w <= 0.2 ? 'bad' : 'neu'); }
+
+/* ---------- 纯文本结果（复制 / 分享用） ---------- */
+function plainText(r) {
+  const L = [];
+  L.push('【号码玄机 · 手机号吉凶测算】');
+  L.push(`号码：${r.fmt}　号段：${r.carrier}`);
+  L.push(`综合评分：${Math.round(r.total)} / 100　${r.grade.grade} 级 · ${r.grade.qian} · ${r.grade.luck}`);
+  L.push('');
+  L.push(`81 数理：${r.shuli.idx} ${r.shuli.n}（${numLevel(r.shuli.w)}）— ${r.shuli.s}`);
+  L.push(`数字磁场 ${Math.round(r.magnet.score)}｜81 数理 ${Math.round(r.shuli.point)}｜号码形态 ${Math.round(r.pattern.score)}｜河图五行 ${Math.round(r.five.score)}`);
+  L.push('');
+  L.push('◆ 八星磁场');
+  r.magnet.groups.forEach(g => {
+    const gi = g.info.g, G = CIGROUP[gi] || CIZERO;
+    const tag = gi === 'zero' ? '中性' : (G.lucky > 0 ? '吉星' : '凶星');
+    L.push(`  ${g.pair}　${G.n}${tag ? '（' + tag + '）' : ''}　权重 ${g.weight}`);
+  });
+  L.push('');
+  L.push('◆ 五维画像');
+  r.dims.forEach(d => L.push(`  ${d.n}：${Math.round(d.v)}`));
+  L.push('');
+  L.push(`◆ 五行：最旺 ${r.five.dominant}（${r.five.cnt[r.five.dominant]} 位）` +
+    (r.five.missing.length ? `　缺 ${r.five.missing.join('、')}` : '　五行不缺'));
+  L.push(`  分布 ${WUXING_ORDER.map(k => `${k}${r.five.cnt[k]}`).join('　')}`);
+  L.push('');
+  L.push('◆ 号型');
+  r.pattern.feats.forEach(f => L.push(`  · ${f.t}`));
+  if (r.advice.length) { L.push(''); L.push('◆ 化解建议'); r.advice.forEach(a => L.push(`  · ${a.t}`)); }
+  L.push('');
+  L.push('判词：' + r.verdict[0]);
+  L.push('（传统民俗数理，文化娱乐参考，不构成任何决策建议）');
+  return L.join('\n');
+}
+
+async function copyText(t) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(t); return true; }
+  } catch (e) { /* 继续走兜底 */ }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = t; ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+
+function bindActs() {
+  const tip = $('#copy-tip');
+  const say = m => { if (tip) tip.textContent = m; };
+
+  const c = $('#copy');
+  if (c) c.addEventListener('click', async () => {
+    if (!LAST) return;
+    say(await copyText(plainText(LAST)) ? '✓ 已复制完整测算结果到剪贴板' : '复制失败，请长按选择文字手动复制');
+  });
+
+  const s = $('#share');
+  if (s) s.addEventListener('click', () => { shareCard(); });
+
+  const cAdd = $('#cmpadd');
+  if (cAdd) cAdd.addEventListener('click', () => { if (LAST) compare.add(LAST); });
+
+  const a = $('#again');
+  if (a) a.addEventListener('click', () => {
+    CUR = ''; phone.value = ''; paint(); hideErr();
+    resultBox.hidden = true; resultBox.innerHTML = '';
+    $('#card-input').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => phone.focus(), 360);
+  });
+}
+
+/* ---------- 选号推荐 ---------- */
+const REC = Object.assign({ target: 'auto', shape: 'any', fill: true, noFour: true }, readRec() || {});
+
+function renderRec() {
+  const grid = $('#rec-grid');
+  if (!grid || !LAST) return;
+  const rec = recommend(LAST.num, REC);
+  LAST_REC = rec;
+  if (!rec.ok) { grid.innerHTML = '<p class="lead">' + esc(rec.err) + '</p>'; return; }
+
+  grid.innerHTML = rec.list.map(c => {
+    const cls = c.g === 'S' || c.g === 'A' ? 'good' : (c.g === 'E' || c.g === 'D' ? 'bad' : '');
+    return `<div class="rec-card">
+      <div class="rec-top">
+        <b class="rec-num">${esc(fmtFull(c.num))}</b>
+        <span class="rec-score ${cls}">${esc(c.g)} ${Math.round(c.total)}</span>
+      </div>
+      <div class="rec-delta">
+        <span class="${c.deltaDim >= 0 ? 'up' : 'down'}">${esc(rec.dimName)} ${c.deltaDim >= 0 ? '+' : ''}${c.deltaDim}</span>
+        <span class="${c.deltaTotal >= 0 ? 'up' : 'down'}">综合 ${c.deltaTotal >= 0 ? '+' : ''}${c.deltaTotal}</span>
+      </div>
+      <ul class="rec-reasons">${c.reasons.map(x =>
+        `<li><i>${esc(x.t)}</i><span>${esc(x.d)}</span></li>`).join('')}</ul>
+      <div class="rec-acts">
+        <button class="btn-mini" data-use="${esc(c.num)}">测这个</button>
+        <button class="btn-mini ghost" data-add="${esc(c.num)}">对比＋</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('[data-use]').forEach(b => b.addEventListener('click', () => {
+    const n = b.getAttribute('data-use');
+    CUR = n; phone.value = fmtInput(n); paint(); hideErr();
+    runCast(n);
+  }));
+  grid.querySelectorAll('[data-add]').forEach(b => b.addEventListener('click', () => {
+    const r2 = analyze(b.getAttribute('data-add'));
+    if (r2 && r2.ok) compare.add(r2);
+  }));
+}
+
+function bindRec() {
+  const box = $('#rec-opts');
+  if (!box) return;
+  box.querySelectorAll('.chip[data-k]').forEach(x =>
+    x.classList.toggle('on', REC[x.dataset.k] === x.dataset.v));
+  const f = $('#rec-fill'), n4 = $('#rec-nofour');
+  if (f) f.classList.toggle('on', REC.fill);
+  if (n4) n4.classList.toggle('on', REC.noFour);
+
+  box.addEventListener('click', e => {
+    const b = e.target.closest('button.chip');
+    if (!b) return;
+    if (b.dataset.k) REC[b.dataset.k] = b.dataset.v;
+    else if (b.id === 'rec-fill') REC.fill = !REC.fill;
+    else if (b.id === 'rec-nofour') REC.noFour = !REC.noFour;
+    box.querySelectorAll('.chip[data-k]').forEach(x =>
+      x.classList.toggle('on', REC[x.dataset.k] === x.dataset.v));
+    if (f) f.classList.toggle('on', REC.fill);
+    if (n4) n4.classList.toggle('on', REC.noFour);
+    try { localStorage.setItem(RKEY, JSON.stringify(REC)); } catch (e) { }
+    renderRec();
+  });
+}
+
+/* ---------- 推荐方案（本机存储） ----------
+   方案 = 配置 + 当时那 6 个号的快照。只存配置会导致回看时号码全变（推荐是随机生成），
+   所以快照必须一起存，回看才是同一组。 */
+const PKEY = 'hl_plans', RKEY = 'hl_rec';
+const TGT_NAMES = { auto: '自动补弱', all: '综合', cai: '财运', shi: '事业', qing: '感情', jian: '健康', ren: '人际' };
+const SHP_NAMES = { any: '不限号型', baozi: '豹子', shunzi: '顺子', duizi: '对子', xunhuan: '循环' };
+let LAST_REC = null;
+
+function readPlans() {
+  try { return sanitizePlans(JSON.parse(localStorage.getItem(PKEY) || '[]')); } catch (e) { return []; }
+}
+function writePlans(l) {
+  try { localStorage.setItem(PKEY, JSON.stringify(l.slice(0, 6))); } catch (e) { /* 隐私模式静默 */ }
+}
+function readRec() {
+  try { return sanitizeRec(JSON.parse(localStorage.getItem(RKEY) || 'null')); } catch (e) { return null; }
+}
+
+function planTags(p) {
+  const t = [TGT_NAMES[p.opts.target] || p.opts.target, SHP_NAMES[p.opts.shape] || p.opts.shape];
+  if (p.opts.fill) t.push('补缺');
+  if (p.opts.noFour) t.push('避4');
+  return t;
+}
+
+function renderPlans() {
+  const box = $('#plan-list');
+  if (!box) return;
+  const plans = readPlans();
+  const btn = $('#plan-toggle');
+  if (btn) btn.textContent = plans.length ? `我的方案（${plans.length}）` : '我的方案';
+  if (!plans.length) {
+    box.innerHTML = '<p class="lead">还没有方案。调好补强方向与号型后点「存为方案」，' +
+      '之后换号、换设备前都能回看这一组候选。</p>';
+    return;
+  }
+  box.innerHTML = plans.map((p, i) => `
+    <div class="plan-row" data-i="${i}">
+      <div class="plan-h" data-open="${i}">
+        <b>${esc(fmtFull(p.base))}</b>
+        <i>${esc(new Date(p.ts).toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }))}</i>
+        <span class="plan-tags">${planTags(p).map(t => `<em>${esc(t)}</em>`).join('')}</span>
+      </div>
+      <div class="plan-items" hidden>
+        ${p.items.map(x => `
+          <div class="plan-it">
+            <b>${esc(fmtFull(x.num))}</b>
+            <span class="hs">${Math.round(x.total)}</span>
+            <span class="${x.deltaDim >= 0 ? 'up' : 'down'}">${x.deltaDim >= 0 ? '+' : ''}${x.deltaDim}</span>
+            <span class="plan-acts">
+              <button class="btn-mini" data-use="${esc(x.num)}">测</button>
+              <button class="btn-mini ghost" data-add="${esc(x.num)}">＋</button>
+            </span>
+          </div>`).join('')}
+        <div class="plan-ops">
+          <button class="btn-mini ghost" data-load="${i}">载入此配置重生成</button>
+          <button class="btn-mini ghost" data-del="${i}">删除方案</button>
+        </div>
+      </div>
+    </div>`).join('');
+
+  box.querySelectorAll('[data-open]').forEach(h => h.addEventListener('click', () => {
+    const items = h.parentElement.querySelector('.plan-items');
+    items.hidden = !items.hidden;
+  }));
+  box.querySelectorAll('[data-use]').forEach(b => b.addEventListener('click', ev => {
+    ev.stopPropagation();
+    const n = b.getAttribute('data-use');
+    CUR = n; phone.value = fmtInput(n); paint(); hideErr(); runCast(n);
+  }));
+  box.querySelectorAll('[data-add]').forEach(b => b.addEventListener('click', ev => {
+    ev.stopPropagation();
+    const r2 = analyze(b.getAttribute('data-add'));
+    if (r2 && r2.ok) compare.add(r2);
+  }));
+  box.querySelectorAll('[data-load]').forEach(b => b.addEventListener('click', ev => {
+    ev.stopPropagation();
+    const p = readPlans()[+b.getAttribute('data-load')];
+    if (!p) return;
+    Object.assign(REC, p.opts);
+    bindRec(); renderRec();
+    $('#rec-opts').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast('已载入方案配置，重新生成中');
+  }));
+  box.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', ev => {
+    ev.stopPropagation();
+    const l = readPlans();
+    l.splice(+b.getAttribute('data-del'), 1);
+    writePlans(l); renderPlans();
+    toast('方案已删除');
+  }));
+}
+
+function bindPlans() {
+  const save = $('#plan-save'), tog = $('#plan-toggle');
+  if (save) save.addEventListener('click', () => {
+    if (!LAST_REC || !LAST_REC.ok || !LAST) { toast('先测算一个号码'); return; }
+    const plans = readPlans();
+    plans.unshift({
+      ts: Date.now(), base: LAST.num,
+      opts: { target: REC.target, shape: REC.shape, fill: REC.fill, noFour: REC.noFour },
+      items: LAST_REC.list.map(c => ({
+        num: c.num, total: c.total, g: c.g, deltaDim: c.deltaDim, deltaTotal: c.deltaTotal
+      }))
+    });
+    writePlans(plans);
+    renderPlans();
+    $('#plan-list').hidden = false;
+    toast(`已存为方案（共 ${readPlans().length} 个）`);
+  });
+  if (tog) tog.addEventListener('click', () => {
+    const box = $('#plan-list');
+    box.hidden = !box.hidden;
+    if (!box.hidden) renderPlans();
+  });
+}
+
+/* ---------- 本机历史（仅存本机，无上传） ---------- */
+const LKEY = 'hl_hist';
+
+function readHist() {
+  try {
+    const raw = localStorage.getItem(LKEY);
+    const arr = JSON.parse(raw || '[]');
+    return Array.isArray(arr) ? arr.filter(h => h && typeof h.num === 'string') : [];
+  } catch (e) { return []; }
+}
+function writeHist(list) {
+  try { localStorage.setItem(LKEY, JSON.stringify(list.slice(0, 12))); } catch (e) { /* 隐私模式静默失败 */ }
+}
+function saveHist(r) {
+  const list = readHist();
+  const i = list.findIndex(x => x.num === r.num);
+  if (i >= 0) list.splice(i, 1);
+  list.unshift({ num: r.num, total: r.total, g: r.grade.grade, q: r.grade.qian, l: r.grade.luck, ts: r.ts });
+  writeHist(list);
+  renderHist(readHist());
+}
+function dstr(ts) {
+  const d = new Date(ts), p = n => String(n).padStart(2, '0');
+  return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function renderHist(list) {
+  const box = $('#hist-list'), card = $('#card-history');
+  if (!box || !card) return;
+  card.hidden = list.length === 0;
+  box.innerHTML = list.map(h => `
+    <div class="hrow" data-num="${esc(h.num)}">
+      <div class="hi">
+        <b>${esc(h.num.slice(0, 3))} **** ${esc(h.num.slice(7))}</b>
+        <i>${esc(dstr(h.ts))}</i>
+      </div>
+      <div class="hr">
+        <span class="hs">${Math.round(h.total)}</span>
+        <span class="hg ${h.g === 'S' || h.g === 'A' ? 'good' : (h.g === 'E' || h.g === 'D' ? 'bad' : '')}">${esc(h.g)} · ${esc(h.l)}</span>
+      </div>
+    </div>`).join('');
+  compare.syncHistoryChips();
+  box.querySelectorAll('.hrow').forEach(el => {
+    el.addEventListener('click', () => {
+      const n = el.getAttribute('data-num') || '';
+      CUR = n; phone.value = fmtInput(n); paint(); hideErr();
+      render(analyze(n));
+      resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+}
+
+/* ---------- 启动 ---------- */
+/* 对比成图：复用 share.js 的绘制与出图链路（分享→下载→长按保存） */
+async function shareCompareCard(list, verdict) {
+  toast('正在生成对比图…');
+  try {
+    const cv = drawCompareCard(list, verdict, clamp);
+    await exportCanvasImage(
+      cv,
+      `号码玄机-对比-${list.length}号.png`,
+      '号码对比 · 帮我选号',
+      '几个候选号并排比过了，帮我看看选哪个',
+      { $: s => document.querySelector(s), say: toast });
+  } catch (e) {
+    toast('生成对比图失败，请稍后再试');
+  }
+}
+
+const compare = initCompare({
+  $: s => document.querySelector(s),
+  esc,
+  analyze,
+  toast,
+  shareCompare: shareCompareCard
+});
+const shareCard = initShare({
+  getLast: () => LAST,
+  $: s => document.querySelector(s),
+  clamp,
+  copyText,
+  plainText
+});
+paint();
+renderHist(readHist());
+
+/* 深链支持：https://laicai.us.ci/?n=13800138000 直接出结果。
+   现在用于手动分享；后续任何"把某个号的结论发给别人"的路径都走它。 */
+try {
+  const qn = new URLSearchParams(location.search).get('n');
+  if (qn) {
+    const v = validate(qn);
+    if (v.ok) { CUR = v.num; phone.value = fmtInput(v.num); paint(); runCast(v.num); }
+  }
+} catch (e) { }
+const histClear = $('#hist-clear');
+if (histClear) histClear.addEventListener('click', () => { writeHist([]); renderHist([]); });
+window.__bootOK = true;
+
+/* 离线可用：纯客户端工具，注册 SW 后从主屏打开即秒开、断网可用。
+   策略是网络优先，不会把用户钉在旧代码上（详见 sw.js 头注释）。
+   只在 https 下注册（本地 minis:// 预览无 SW，也不该注册）。 */
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  ;
+}
+</script>
+</body>
+</html>
